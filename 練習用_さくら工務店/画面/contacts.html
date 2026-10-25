@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>連絡先｜AI本社</title>
+<style>
+  :root { --bg:#f6f5f1; --card:#fff; --ink:#1f2328; --muted:#5f6670; --line:#e3e1da; --accent:#2f6f5e; --accent-soft:#e4f0ec; --ask:#1f5fa8; --ask-soft:#e7f0fb; --warn:#b4232a; --chip:#f0efe9; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#16181b; --card:#1f2226; --ink:#e8e6e1; --muted:#a0a4aa; --line:#33373c; --accent:#6fc2a8; --accent-soft:#1f3a33; --ask:#7fb2f0; --ask-soft:#1c2a3d; --warn:#ff7b80; --chip:#2a2d31; } }
+  * { box-sizing:border-box; } body { margin:0; background:var(--bg); color:var(--ink); font-family:"Hiragino Sans","Yu Gothic UI","Meiryo",system-ui,sans-serif; line-height:1.55; }
+  a { color:var(--ask); text-decoration:none; } button { font-family:inherit; cursor:pointer; }
+  .wrap { padding:14px 20px 40px; max-width:1700px; margin:0 auto; }
+  header { display:flex; flex-wrap:wrap; align-items:center; gap:10px 14px; margin-bottom:12px; } h1 { font-size:22px; margin:0; }
+  .btn { border:1px solid var(--line); background:var(--card); color:var(--ink); border-radius:9px; padding:6px 12px; font-size:13.5px; white-space:nowrap; }
+  .btn.g { background:var(--accent); color:#fff; border-color:var(--accent); } .btn.b { background:var(--ask); color:#fff; border-color:var(--ask); } .btn.s { padding:2px 9px; font-size:12px; }
+  .tools { display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-bottom:10px; }
+  .tabs button { border:1px solid var(--line); background:var(--card); color:var(--ink); border-radius:20px; padding:4px 12px; font-size:13px; } .tabs button.on { background:var(--ink); color:var(--card); }
+  input, select, textarea { padding:7px 10px; border:1px solid var(--line); border-radius:8px; font-size:14px; font-family:inherit; background:var(--card); color:var(--ink); width:100%; }
+  #q { width:260px; }
+  .grid { display:grid; grid-template-columns:2fr 1fr; gap:12px; align-items:start; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:12px 14px; min-width:0; } h2 { font-size:15px; margin:0 0 8px; }
+  table { width:100%; border-collapse:collapse; font-size:13.5px; } th { text-align:left; color:var(--muted); font-weight:500; font-size:12px; border-bottom:1px solid var(--line); padding:4px 6px; }
+  td { border-bottom:1px solid var(--line); padding:6px; vertical-align:top; } td .sub { color:var(--muted); font-size:12px; }
+  .kind { font-size:11px; padding:0 7px; border-radius:6px; color:#fff; white-space:nowrap; } .k-取引先 { background:#2f6f5e; } .k-銀行 { background:#1f5fa8; } .k-収入元 { background:#9a6700; } .k-その他 { background:#6b7280; }
+  .acts { display:flex; flex-wrap:wrap; gap:4px; }
+  .panel { border:2px solid var(--accent); border-radius:12px; background:var(--card); padding:12px 14px; margin-bottom:12px; }
+  .row { display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:6px 12px; } label { font-size:12.5px; color:var(--muted); display:block; margin-top:6px; }
+  .hint { font-size:12px; color:var(--muted); } .empty { color:var(--muted); font-size:13px; padding:8px 0; }
+  .toast { position:fixed; left:50%; bottom:18px; transform:translateX(-50%); background:#333; color:#fff; padding:8px 16px; border-radius:10px; font-size:14px; display:none; z-index:9; }
+  ul { margin:0; padding:0; list-style:none; } li.dr { border-bottom:1px solid var(--line); padding:7px 0; font-size:13.5px; } li.dr:last-child { border-bottom:0; }
+  @media (max-width:1100px) { .grid { grid-template-columns:1fr; } }
+  @media (max-width:700px) { #q { width:100%; } thead { display:none; } tr { display:block; border-bottom:1px solid var(--line); padding:6px 0; } td { display:block; border:0; padding:2px 0; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>📇 連絡先</h1><a href="dashboard.html">← 今日の会社</a>
+    <span class="hint" id="mailInfo"></span>
+    <span style="margin-left:auto"></span>
+    <button class="btn" id="connectBtn" hidden>📁 会社フォルダとつなぐ</button>
+  </header>
+
+  <div class="tools">
+    <button class="btn g" data-open="manual">＋ 手で登録</button>
+    <button class="btn" data-open="card">📷 名刺から登録</button>
+    <button class="btn" data-open="web">🔍 ネットで調べて登録</button>
+    <span class="tabs" id="tabs"><button class="on" data-k="">すべて</button><button data-k="取引先">取引先</button><button data-k="銀行">取引銀行</button><button data-k="収入元">収入元</button><button data-k="その他">その他</button></span>
+    <input id="q" placeholder="名前・担当者・メールで探す">
+  </div>
+
+  <!-- 登録のパネル -->
+  <div class="panel" id="p-manual" hidden>
+    <h2 id="formTitle">＋ 手で登録</h2>
+    <form id="form">
+      <input type="hidden" name="id">
+      <div class="row">
+        <div><label>種類</label><select name="kind"><option>取引先</option><option value="銀行">取引銀行</option><option>収入元</option><option>その他</option></select></div>
+        <div><label>名前（会社・銀行・サービス）</label><input name="name" required placeholder="例：山田商事／○○銀行 本店／YouTube（Google）"></div>
+        <div><label>担当者・部署</label><input name="person" placeholder="例：営業部 山田様"></div>
+        <div><label>メール</label><input name="email" type="email" placeholder="例：yamada@example.co.jp"></div>
+        <div><label>電話</label><input name="phone"></div>
+        <div><label>ホームページ・管理画面</label><input name="url" placeholder="https://"></div>
+        <div><label>住所</label><input name="address"></div>
+        <div><label>メモ（支払日・取引の内容など）</label><input name="memo" placeholder="例：毎月21日に入金／見積は担当者へ"></div>
+      </div>
+      <div class="hint" style="margin-top:6px">口座番号・暗証番号・パスワード・カード番号は入れないでください（保存しません）</div>
+      <div style="margin-top:8px;display:flex;gap:8px"><button class="btn g" type="submit">保存する</button><button class="btn" type="button" data-close>閉じる</button></div>
+    </form>
+  </div>
+  <div class="panel" id="p-card" hidden>
+    <h2>📷 名刺から登録</h2>
+    <div class="hint">名刺の写真（スマホで撮ったもの・スキャン）を選んでください。何枚でもまとめて選べます。会社フォルダの「00_受付箱/名刺」に入れ、AIが読み取って登録の案を作ります（登録する前に社長に見せます）。</div>
+    <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap"><input type="file" id="cardFiles" accept="image/*,.pdf" multiple style="width:auto"><button class="btn g" id="cardGo">AIに読み取りを頼む</button><button class="btn" type="button" data-close>閉じる</button></div>
+  </div>
+  <div class="panel" id="p-web" hidden>
+    <h2>🔍 ネットで調べて登録</h2>
+    <div class="hint">会社名やサービス名を入れると、AIが公式のホームページなどの公開情報を調べ、住所・電話・問い合わせ先の案を出します（出どころつき。登録する前に社長に見せます）。</div>
+    <div class="row" style="margin-top:6px"><div><label>名前</label><input id="webName" placeholder="例：株式会社山田商事 静岡市"></div>
+      <div><label>種類</label><select id="webKind"><option>取引先</option><option value="銀行">取引銀行</option><option>収入元</option><option>その他</option></select></div></div>
+    <div style="margin-top:8px;display:flex;gap:8px"><button class="btn g" id="webGo">AIに調べてもらう</button><button class="btn" type="button" data-close>閉じる</button></div>
+  </div>
+  <!-- メール -->
+  <div class="panel" id="p-mail" hidden style="border-color:var(--ask)">
+    <h2 id="mailTitle">✉ メールを書く</h2>
+    <div class="row">
+      <div><label>用件</label><select id="mailPurpose"><option>お礼</option><option>入金の催促</option><option>見積・請求の送付のお知らせ</option><option>日程の調整</option><option>お詫び</option><option>問い合わせ</option><option>自由に書く</option></select></div>
+      <div><label>ていねいさ</label><select id="mailTone"><option>ふつう</option><option>とても丁寧</option><option>くだけた</option></select></div>
+    </div>
+    <label>伝えたいこと（箇条書きでよい）</label><textarea id="mailNote" rows="3" placeholder="例：10月分の請求書を送ったこと。入金期限は11月30日"></textarea>
+    <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn b" id="mailAI">AIに下書きを頼む</button>
+      <button class="btn" id="mailNow">自分ですぐ書く（メールソフトを開く）</button>
+      <button class="btn" type="button" data-close>閉じる</button></div>
+    <div class="hint" style="margin-top:6px">メールを送るのは、いつも社長（人）です。AIは下書きまで。下書きができると右の「メールの下書き」に出ます。</div>
+  </div>
+
+  <div class="grid">
+    <div class="card"><h2 id="listTitle">連絡先</h2><div id="list"></div></div>
+    <div>
+      <div class="card" style="margin-bottom:12px"><h2>✉ メールの下書き（AIが作ったもの）</h2><ul id="drafts"></ul></div>
+      <div class="card"><h2>📝 登録の案（AIが名刺・ネットから作ったもの）</h2><div class="hint">今日の会社の「① 判断が必要なこと」で OK を押すと登録されます。</div><ul id="pending"></ul></div>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<!-- フォルダとつながっていないときの表示用：AIが台帳の中身をここにも写します -->
+<script id="contacts-data" type="application/json">
+{ "contacts": [], "drafts": [], "pending": [], "mail": { "work_email": "", "client": "gmail" } }
+</script>
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); };
+  var toast = function (t) { var el = $('toast'); el.textContent = t; el.style.display = 'block'; clearTimeout(el._t); el._t = setTimeout(function () { el.style.display = 'none'; }, 4000); };
+  var data = { contacts: [], drafts: [], pending: [], mail: {} }; try { data = JSON.parse($('contacts-data').textContent); } catch (e) {}
+  var kindNow = '', dir = null, mailTo = null;
+
+  /* フォルダ（dashboard・settings と同じつなぎ方） */
+  var idb = function (mode, fn) { return new Promise(function (ok, ng) { var r = indexedDB.open('aihonsha', 1); r.onupgradeneeded = function () { r.result.createObjectStore('h'); };
+    r.onsuccess = function () { var tx = r.result.transaction('h', mode); var q = fn(tx.objectStore('h')); tx.oncomplete = function () { ok(q && q.result); }; tx.onerror = ng; }; r.onerror = ng; }); };
+  var getDir = async function (ask) {
+    if (!window.showDirectoryPicker) return null;
+    var h = await idb('readonly', function (s) { return s.get('dir'); }).catch(function () { return null; });
+    if (h && (await h.queryPermission({ mode: 'readwrite' })) === 'granted') return h;
+    if (!ask) return null;
+    if (h && (await h.requestPermission({ mode: 'readwrite' })) === 'granted') return h;
+    h = await window.showDirectoryPicker({ mode: 'readwrite' }); await idb('readwrite', function (s) { return s.put(h, 'dir'); }); return h;
+  };
+  var fileIn = async function (d, path, create) { var parts = path.split('/'), cur = d; for (var i = 0; i < parts.length - 1; i++) cur = await cur.getDirectoryHandle(parts[i], { create: !!create }); return cur.getFileHandle(parts[parts.length - 1], { create: !!create }); };
+  var readJSON = async function (path, def) { try { return JSON.parse(await (await (await fileIn(dir, path)).getFile()).text()); } catch (e) { return def; } };
+  var writeJSON = async function (path, obj) { var w = await (await fileIn(dir, path, true)).createWritable(); await w.write(JSON.stringify(obj, null, 1)); await w.close(); };
+  var need = async function () { dir = dir || await getDir(true); if (!dir) toast('このブラウザでは保存できません（Chrome か Edge で開いてください）'); return dir; };
+  var now = function () { var t = new Date(); return t.getFullYear() + '-' + String(t.getMonth() + 1).padStart(2, '0') + '-' + String(t.getDate()).padStart(2, '0') + ' ' + String(t.getHours()).padStart(2, '0') + ':' + String(t.getMinutes()).padStart(2, '0'); };
+  var request = async function (text) { if (!(await need())) { if (navigator.clipboard) navigator.clipboard.writeText(text); return false; }
+    var list = await readJSON('箱/依頼箱.json', []); list.push({ id: 'r' + Date.now(), text: text, time: now(), status: '未着手' }); await writeJSON('箱/依頼箱.json', list); return true; };
+  var loadLive = async function () {
+    var c = await readJSON('台帳/連絡先.json', null); if (c) data.contacts = c.contacts || [];
+    var dr = await readJSON('台帳/メール下書き.json', null); if (dr) data.drafts = dr.drafts || [];
+    var st = await readJSON('設定.json', null); if (st) data.mail = { work_email: st.work_email || '', client: st.mail_client || 'gmail', signature: st.mail_signature || '' };
+    var pend = await readJSON('台帳/判断待ち.json', []); data.pending = (pend || []).filter(function (x) { return x.kind === '登録'; });
+    render();
+  };
+
+  /* メールソフトを開く（送信は人） */
+  var compose = function (to, subject, body) {
+    var m = data.mail || {}, e = encodeURIComponent, url;
+    if (m.client === 'outlook') url = 'https://outlook.office.com/mail/deeplink/compose?to=' + e(to || '') + '&subject=' + e(subject || '') + '&body=' + e(body || '');
+    else if (m.client === 'mailto') url = 'mailto:' + (to || '') + '?subject=' + e(subject || '') + '&body=' + e(body || '');
+    else url = 'https://mail.google.com/mail/?view=cm&fs=1&to=' + e(to || '') + '&su=' + e(subject || '') + '&body=' + e(body || '') + (m.work_email ? '&authuser=' + e(m.work_email) : '');
+    window.open(url, '_blank', 'noopener');
+  };
+
+  /* 表示 */
+  var render = function () {
+    var m = data.mail || {};
+    $('mailInfo').innerHTML = m.work_email ? '送るメール：<b>' + esc(m.work_email) + '</b>（' + esc({ gmail: 'Gmail', outlook: 'Outlook', mailto: 'パソコンのメールソフト' }[m.client] || 'Gmail') + '）' : '<a href="settings.html#s-mail">⚙️ 設定で仕事用のメールを登録してください</a>';
+    var q = $('q').value.trim().toLowerCase();
+    var rows = (data.contacts || []).filter(function (c) { return !c.inactive && (!kindNow || c.kind === kindNow) && (!q || [c.name, c.person, c.email, c.memo].join(' ').toLowerCase().indexOf(q) >= 0); });
+    $('listTitle').textContent = '連絡先（' + rows.length + '件）';
+    $('list').innerHTML = rows.length ? '<table><thead><tr><th>種類</th><th>名前・担当</th><th>メール・電話</th><th>メモ</th><th></th></tr></thead><tbody>' + rows.map(function (c) {
+      return '<tr><td><span class="kind k-' + esc(c.kind || 'その他') + '">' + esc(c.kind === '銀行' ? '取引銀行' : (c.kind || 'その他')) + '</span></td>' +
+        '<td><b>' + esc(c.name) + '</b><div class="sub">' + esc(c.person || '') + (c.url ? '　<a href="' + esc(c.url) + '" target="_blank" rel="noopener">サイト↗</a>' : '') + '</div></td>' +
+        '<td>' + (c.email ? esc(c.email) : '<span class="sub">メールなし</span>') + '<div class="sub">' + esc(c.phone || '') + '</div></td>' +
+        '<td class="sub">' + esc(c.memo || '') + (c.source ? '<div>登録：' + esc(c.source) + '</div>' : '') + '</td>' +
+        '<td><div class="acts">' + (c.email ? '<button class="btn s b" data-mail="' + esc(c.id) + '">✉ メール</button>' : '') + '<button class="btn s" data-edit="' + esc(c.id) + '">直す</button></div></td></tr>';
+    }).join('') + '</tbody></table>' : '<div class="empty">' + ((data.contacts || []).length ? '見つかりません' : 'まだ登録がありません。上の3つの方法で登録できます') + '</div>';
+    var drs = (data.drafts || []).filter(function (d) { return d.status !== '送った'; });
+    $('drafts').innerHTML = drs.length ? drs.map(function (d) { return '<li class="dr"><b>' + esc(d.subject) + '</b><div class="hint">宛先：' + esc(d.to_name || '') + ' ' + esc(d.to || '') + '　' + esc(d.created || '') + '</div>' +
+      '<div class="acts" style="margin-top:4px"><button class="btn s b" data-open-draft="' + esc(d.id) + '">メールソフトで開く</button><button class="btn s" data-sent="' + esc(d.id) + '">送った</button></div></li>'; }).join('') : '<li class="empty">ありません</li>';
+    $('pending').innerHTML = (data.pending || []).length ? data.pending.map(function (p) { return '<li class="dr">' + esc(p.text) + '</li>'; }).join('') : '<li class="empty">ありません</li>';
+  };
+
+  /* 操作 */
+  var panels = ['manual', 'card', 'web', 'mail'];
+  var open = function (n) { panels.forEach(function (p) { $('p-' + p).hidden = p !== n; }); if (n) $('p-' + n).scrollIntoView({ behavior: 'smooth', block: 'nearest' }); };
+  document.addEventListener('click', async function (ev) {
+    var t = ev.target;
+    if (t.dataset.open) { if (t.dataset.open === 'manual') { $('form').reset(); $('formTitle').textContent = '＋ 手で登録'; } open(t.dataset.open); }
+    if (t.hasAttribute('data-close')) open(null);
+    if (t.dataset.k !== undefined && t.parentNode.id === 'tabs') { kindNow = t.dataset.k; Array.prototype.forEach.call($('tabs').children, function (b) { b.classList.toggle('on', b === t); }); render(); }
+    if (t.dataset.edit) { var c = data.contacts.find(function (x) { return x.id === t.dataset.edit; }); if (!c) return; var f = $('form');
+      Object.keys(c).forEach(function (k) { if (f.elements[k]) f.elements[k].value = c[k]; }); $('formTitle').textContent = '直す：' + c.name; open('manual'); }
+    if (t.dataset.mail) { mailTo = data.contacts.find(function (x) { return x.id === t.dataset.mail; }); $('mailTitle').textContent = '✉ ' + mailTo.name + (mailTo.person ? '（' + mailTo.person + '）' : '') + ' にメール'; open('mail'); }
+    if (t.dataset.openDraft) { var d = data.drafts.find(function (x) { return x.id === t.dataset.openDraft; }); if (d) compose(d.to, d.subject, d.body); }
+    if (t.dataset.sent) { if (!(await need())) return; var obj = await readJSON('台帳/メール下書き.json', { drafts: [] });
+      (obj.drafts || []).forEach(function (d) { if (d.id === t.dataset.sent) { d.status = '送った'; d.sent_at = now(); } }); await writeJSON('台帳/メール下書き.json', obj); data.drafts = obj.drafts; render(); toast('「送った」にしました'); }
+  });
+  $('q').addEventListener('input', render);
+  $('form').addEventListener('submit', async function (ev) {
+    ev.preventDefault(); var f = ev.target, c = {};
+    ['id', 'kind', 'name', 'person', 'email', 'phone', 'url', 'address', 'memo'].forEach(function (k) { c[k] = (f.elements[k].value || '').trim(); });
+    if (/\d{7,}/.test((c.memo + c.address).replace(/[-‐ー－]/g, '')) && !confirm('長い数字があります。口座番号などではありませんか？このまま保存しますか？')) return;
+    if (!(await need())) return;
+    var obj = await readJSON('台帳/連絡先.json', { contacts: [] }); obj.contacts = obj.contacts || [];
+    if (c.id) { obj.contacts = obj.contacts.map(function (x) { return x.id === c.id ? Object.assign(x, c, { updated: now() }) : x; }); }
+    else { c.id = 'c' + Date.now(); c.source = '手で登録 ' + now().slice(0, 10); c.created = now(); obj.contacts.push(c); }
+    await writeJSON('台帳/連絡先.json', obj); data.contacts = obj.contacts; render(); open(null); toast('保存しました：' + c.name);
+  });
+  $('cardGo').onclick = async function () {
+    var files = $('cardFiles').files; if (!files.length) { toast('名刺の写真を選んでください'); return; } if (!(await need())) return;
+    var box = await (await dir.getDirectoryHandle('00_受付箱', { create: true })).getDirectoryHandle('名刺', { create: true }), names = [];
+    for (var i = 0; i < files.length; i++) { var nm = now().replace(/[: ]/g, '-') + '_' + files[i].name; var w = await (await box.getFileHandle(nm, { create: true })).createWritable(); await w.write(files[i]); await w.close(); names.push(nm); }
+    await request('名刺 ' + names.length + '枚を読み取って、連絡先の登録案を作って（00_受付箱/名刺 の ' + names.join('、') + '）');
+    open(null); toast('名刺を' + names.length + '枚入れて、AIに読み取りを頼みました');
+  };
+  $('webGo').onclick = async function () { var n = $('webName').value.trim(); if (!n) { toast('名前を入れてください'); return; }
+    var ok = await request('「' + n + '」（' + $('webKind').value + '）を公開情報で調べて、連絡先の登録案を作って（出どころのURLつき）');
+    open(null); toast(ok ? 'AIに調べるよう頼みました' : '文をコピーしました。Claude に貼り付けてください'); };
+  $('mailAI').onclick = async function () { if (!mailTo) return;
+    var ok = await request(mailTo.name + (mailTo.person ? '（' + mailTo.person + '）' : '') + '〈' + mailTo.email + '〉へのメールを下書きして。用件：' + $('mailPurpose').value + '。ていねいさ：' + $('mailTone').value + '。伝えたいこと：' + ($('mailNote').value.trim() || 'なし') + '（連絡先id ' + mailTo.id + '）');
+    open(null); toast(ok ? 'AIに下書きを頼みました。できると右の「メールの下書き」に出ます' : '文をコピーしました。Claude に貼り付けてください'); };
+  $('mailNow').onclick = function () { if (!mailTo) return; var sig = (data.mail || {}).signature;
+    compose(mailTo.email, $('mailPurpose').value === '自由に書く' ? '' : $('mailPurpose').value, (mailTo.person ? mailTo.person + '\n\n' : '') + ($('mailNote').value || '') + (sig ? '\n\n' + sig : '')); };
+
+  /* はじめ */
+  render();
+  if (window.showDirectoryPicker) {
+    getDir(false).then(function (h) { if (h) { dir = h; loadLive(); } else $('connectBtn').hidden = false; });
+    $('connectBtn').onclick = function () { getDir(true).then(function (h) { if (h) { dir = h; $('connectBtn').hidden = true; loadLive(); } }); };
+  }
+  if (location.hash === '#add') open('manual');
+})();
+</script>
+</body>
+</html>

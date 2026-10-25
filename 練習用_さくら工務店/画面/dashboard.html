@@ -1,0 +1,501 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>今日の会社</title>
+<style>
+  :root { --bg:#f6f5f1; --card:#fff; --ink:#1f2328; --muted:#5f6670; --line:#e3e1da; --accent:#2f6f5e; --accent-soft:#e4f0ec;
+    --warn:#b4232a; --soon:#9a6700; --ask:#1f5fa8; --ask-soft:#e7f0fb; --chip:#f0efe9; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#16181b; --card:#1f2226; --ink:#e8e6e1; --muted:#a0a4aa; --line:#33373c; --accent:#6fc2a8; --accent-soft:#1f3a33;
+      --warn:#ff7b80; --soon:#e3b341; --ask:#7fb2f0; --ask-soft:#1c2a3d; --chip:#2a2d31; }
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font-family:"Hiragino Sans","Yu Gothic UI","Meiryo",system-ui,sans-serif; line-height:1.5; }
+  a { color:var(--ask); text-decoration:none; } button { font-family:inherit; cursor:pointer; }
+  .wrap { padding:14px 20px 24px; }
+  header { display:flex; align-items:center; gap:10px 14px; margin-bottom:10px; flex-wrap:wrap; }
+  h1 { font-size:22px; margin:0; white-space:nowrap; } .muted { color:var(--muted); font-size:12.5px; }
+  nav { margin-left:auto; display:flex; flex-wrap:wrap; gap:6px; }
+  nav a { padding:5px 12px; border:1px solid var(--line); border-radius:20px; background:var(--card); color:var(--ink); font-size:13px; }
+  nav a.on { border-color:var(--ask); color:var(--ask); font-weight:700; }
+  .req { display:flex; gap:10px; align-items:center; flex:1 1 520px; max-width:900px; border:2px solid var(--accent); border-radius:12px; background:var(--card); padding:6px 8px 6px 14px; }
+  .req input { flex:1; border:0; outline:0; font-size:14px; background:transparent; color:var(--ink); min-width:0; }
+  .go { background:var(--accent); color:#fff; border:0; border-radius:9px; padding:6px 16px; font-size:14px; white-space:nowrap; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:12px 14px; min-width:0; }
+  h2 { font-size:15px; margin:0 0 6px; display:flex; align-items:center; gap:8px; } h2 .more { margin-left:auto; font-size:12px; font-weight:400; }
+  .g3 { display:grid; grid-template-columns:1.25fr 1.25fr 1fr; gap:12px; margin-bottom:12px; }
+  .ask { border:2px solid var(--ask); background:var(--ask-soft); } .ask h2 { color:var(--ask); }
+  ul { margin:0; padding:0; list-style:none; } li { padding:5px 0; border-bottom:1px solid var(--line); display:flex; gap:8px; align-items:center; font-size:13.5px; } li:last-child { border-bottom:0; }
+  .tag { font-size:11px; padding:0 6px; border-radius:6px; color:#fff; white-space:nowrap; background:var(--ask); }
+  .t-over { background:var(--warn); } .t-soon { background:var(--soon); } .t-ok { background:var(--accent); } .t-money { background:var(--warn); }
+  .b { font-size:11.5px; border:1px solid var(--line); border-radius:7px; padding:0 8px; background:var(--card); color:var(--ink); white-space:nowrap; }
+  .b.g { background:var(--accent); color:#fff; border-color:var(--accent); } .bs { margin-left:auto; display:flex; gap:4px; } .done { color:var(--muted); font-size:12px; margin-left:auto; }
+  .bar { height:9px; background:var(--chip); border-radius:6px; overflow:hidden; } .bar i { display:block; height:100%; background:var(--accent); } .bar i.w { background:var(--soon); }
+  .st3 { display:grid; gap:8px; } .sg { border:1px solid var(--line); border-radius:10px; padding:7px 10px; font-size:13px; } .sg .n { font-weight:700; }
+  .cycle { display:flex; gap:4px; margin:6px 0; } .st { flex:1; text-align:center; font-size:13px; font-weight:700; padding:5px 3px; border-radius:8px; background:var(--chip); color:var(--muted); line-height:1.3; }
+  .st small { font-weight:400; font-size:10.5px; display:block; } .st.now { background:var(--ask); color:#fff; } .st.late { background:var(--warn); color:#fff; }
+  .plan { border-left:4px solid var(--ask); background:var(--ask-soft); padding:6px 9px; border-radius:6px; font-size:13px; margin-top:6px; }
+  .depts { display:grid; grid-template-columns:repeat(3,1fr); gap:7px; } .dp { border:1px solid var(--line); border-radius:9px; padding:6px 9px; font-size:12.5px; } .dp .n { font-weight:700; font-size:13.5px; }
+  .dot { display:inline-block; width:9px; height:9px; border-radius:50%; margin-right:5px; } .dg { background:#2f9e5e; } .dy { background:#e0a400; } .dr { background:var(--warn); }
+  .kp { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:8px; } .k { border:1px solid var(--line); border-radius:10px; padding:7px 10px; }
+  .k .l { font-size:12px; color:var(--muted); } .k .v { font-size:22px; font-weight:700; font-variant-numeric:tabular-nums; } .k .s { font-size:11.5px; }
+  .down { color:var(--warn); } .up { color:var(--accent); }
+  .chart { display:flex; align-items:flex-end; gap:4px; height:52px; } .chart.big i { transform:scaleY(4); transform-origin:bottom; } .chartlabel { font-size:11.5px; color:var(--muted); margin:2px 0 2px; } .cb { flex:1; display:flex; flex-direction:column; justify-content:flex-end; align-items:center; height:100%; min-width:0; }
+  .cb i { width:100%; background:var(--accent); border-radius:3px 3px 0 0; min-height:2px; } .cb.cur i { background:var(--ink); } .cb span { font-size:9px; color:var(--muted); }
+  .empty { color:var(--muted); font-size:13px; padding:6px 0; }
+  table { width:100%; border-collapse:collapse; font-size:13.5px; } th { text-align:left; color:var(--muted); font-weight:500; font-size:12px; border-bottom:1px solid var(--line); padding:4px 6px; }
+  td { border-bottom:1px solid var(--line); padding:5px 6px; vertical-align:top; } td.num { text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap; }
+  .view { display:none; } .view.on { display:block; }
+  .mlay { display:grid; grid-template-columns:230px 1fr; gap:14px; } .mlist { list-style:none; padding:0; margin:0; }
+  .mlist li { padding:7px 9px; border-radius:6px; cursor:pointer; display:flex; justify-content:space-between; gap:6px; font-size:13.5px; } .mlist li:hover, .mlist li.sel { background:var(--ask-soft); }
+  .md { font-size:14px; line-height:1.7; } .md h1 { font-size:18px; margin:0 0 6px; } .md h2 { font-size:15px; margin:12px 0 4px; } .md h3 { font-size:14px; margin:8px 0 2px; } .md ul { margin:2px 0; padding-left:20px; }
+  .mtop { font-size:13.5px; margin-top:4px; }
+  .cf { display:grid; grid-template-columns:repeat(4,1fr); gap:6px; } .cf div { background:var(--soft, #f4f3ee); border-radius:6px; padding:4px 6px; font-size:12px; } .cf b { display:block; font-size:14px; }
+  .cf .red { background:#fde2e1; color:#a1201b; } .cf .yel { background:#fff3cd; color:#7a5b00; } .cfwarn { font-size:12.5px; margin-top:4px; }
+  .cfadd { display:flex; flex-wrap:wrap; gap:6px; align-items:center; margin:8px 0; } .cfadd input, .cfadd select { padding:5px 7px; border:1px solid #ccc; border-radius:6px; font-size:13px; }
+  @media (max-width:1000px) { .mlay { grid-template-columns:1fr; } }
+  .toast { position:fixed; left:50%; bottom:18px; transform:translateX(-50%); background:#333; color:#fff; padding:8px 16px; border-radius:10px; font-size:14px; display:none; z-index:9; }
+  .connect { background:var(--soon); color:#fff; border:0; border-radius:9px; padding:5px 12px; font-size:12.5px; }
+  @media (min-width:1700px) { .wrap { zoom:1.16; } }
+  @media (max-width:1500px) { .g3 { grid-template-columns:1fr 1fr; } .g3 > .card:nth-child(3) { grid-column:1/-1; } .g3 > .card:nth-child(3) .kp { grid-template-columns:repeat(4,1fr); } }
+  @media (max-width:1000px) {
+    .wrap { padding:10px 12px; } .g3 { grid-template-columns:1fr; } .g3 > .card:nth-child(3) .kp { grid-template-columns:1fr 1fr; }
+    header > div:first-child { flex:1 1 100%; } .req { flex:1 1 100%; max-width:none; } nav { margin-left:0; }
+    li { flex-wrap:wrap; } .bs, .done { margin-left:0; width:100%; justify-content:flex-end; text-align:right; }
+    .cycle { display:grid; grid-template-columns:1fr 1fr; } .depts { grid-template-columns:1fr 1fr; }
+  }
+  @media (max-width:560px) { .kp { grid-template-columns:1fr !important; } .depts { grid-template-columns:1fr; } h1 { font-size:19px; } .k .v { font-size:20px; } .req .muted { display:none; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div><h1 id="title">今日の会社</h1><div class="muted" id="updated"></div></div>
+    <form class="req" id="reqForm">
+      <b style="white-space:nowrap">💬 AIに頼む</b>
+      <input id="reqText" placeholder="例：山田商事に入金の催促メールを書いて／来月のシフトを作って">
+      <button class="go" type="submit">頼む</button>
+      <a class="muted" href="#requests" target="_blank" id="reqCount" style="white-space:nowrap"></a>
+    </form>
+    <nav id="nav">
+      <a href="#strategy" target="_blank">🧭 戦略とPDCA</a><a href="#depts" target="_blank">🏢 部署</a><a href="#numbers" target="_blank">📊 数字</a><a href="#cash" target="_blank">💴 資金繰り</a>
+      <a href="#minutes" target="_blank" id="navMin">📝 議事録</a><a href="#docs" target="_blank">📄 書類</a><a href="#todo" target="_blank">✅ やること</a><a href="contacts.html" target="_blank">📇 連絡先</a><a href="settings.html" target="_blank">⚙️ 設定</a>
+      <button class="connect" id="connectBtn" type="button" hidden>📁 会社フォルダとつなぐ</button>
+    </nav>
+  </header>
+
+  <!-- ホーム -->
+  <div class="view" id="v-home">
+    <section class="g3">
+      <div class="card ask"><h2 id="decTitle">① あなたの判断が必要なこと</h2><ul id="decisions"></ul></div>
+      <div class="card"><h2>② 経営戦略<span class="more"><a href="#strategy" target="_blank">中身・同業比較・計画 →</a></span></h2><div id="strategy"></div></div>
+      <div class="card"><h2>⑤ お金<span class="more"><a href="#numbers" target="_blank">くわしい数字 →</a></span><span class="muted" style="font-weight:400" id="moneySrc"></span></h2><div class="kp" id="money"></div><div class="chartlabel">売上の流れ（12か月）</div><div class="chart" id="chart"></div><div class="chartlabel" style="margin-top:6px">資金繰り（月末の残高の見込み）<span class="more"><a href="#cash" target="_blank">中身 →</a></span></div><div id="cf"></div></div>
+    </section>
+    <section class="g3">
+      <div class="card"><h2 id="pdcaTitle">③ PDCA<span class="more"><a href="#strategy" target="_blank">これまでの周 →</a></span></h2><div id="pdca"></div></div>
+      <div class="card"><h2>④ 部署の動き<span class="more"><a href="#depts" target="_blank">部署ごと →</a></span></h2><div class="depts" id="depts"></div>
+        <div class="muted" style="margin-top:6px"><span class="dot dg"></span>動いている <span class="dot dy"></span>3日以上止まる <span class="dot dr"></span>1週間以上止まる</div>
+        <h2 style="margin-top:10px">AIがきのうやったこと</h2><ul id="ailog"></ul><div id="minutesHome"></div></div>
+      <div class="card"><h2>⑥ 7日以内の期限・過ぎたもの<span class="more"><a href="#todo" target="_blank">30日分 →</a></span></h2><ul id="deadlines"></ul>
+        <h2 style="margin-top:10px">⑦ 同業の動き<span class="more"><a href="#strategy" target="_blank">一覧 →</a></span></h2><ul id="peers"></ul></div>
+    </section>
+  </div>
+
+  <!-- 別タブで開く画面 -->
+  <div class="view" id="v-strategy"><div class="card"><h2>🧭 経営戦略とPDCA</h2><div id="strategyFull"></div></div></div>
+  <div class="view" id="v-depts"><div class="card"><h2>🏢 部署の動き（くわしく）</h2><div id="deptsFull"></div></div></div>
+  <div class="view" id="v-numbers"><div class="card"><h2>📊 くわしい数字</h2><div id="numbersFull"></div></div></div>
+  <div class="view" id="v-cash"><div class="card"><h2>💴 資金繰り（今月の残りと、この先3か月）</h2>
+    <div class="muted">口座の残高に、入金の予定（請求済みで入金期限が来るもの）を足し、出金の予定（決まった支払い・届いた請求書・入出金の予定・いつもの経費）を引いた見込みです。売上の見込み（まだ請求していないもの）は入れていません。</div>
+    <div id="cashFull"></div>
+    <h2 style="margin-top:14px">入出金の予定を足す（税金・賞与・大きな仕入れ・借入など）</h2>
+    <form class="cfadd" id="cfForm"><input type="date" id="cfDate" required><input id="cfText" placeholder="内容（例：法人税の納付）" required style="flex:1;min-width:160px">
+      <select id="cfKind"><option value="出金">出金</option><option value="入金">入金</option></select><input id="cfAmt" inputmode="numeric" placeholder="金額（円）" required style="width:120px"><button class="b g" type="submit">足す</button></form>
+    <div class="muted">台帳/入出金の予定.csv に入ります（AIは使いません）。口座番号などは書かないでください。</div></div></div>
+  <div class="view" id="v-minutes"><div class="card"><h2>📝 毎日の議事録<span class="muted" style="font-weight:400">　AIが毎日夕方に、その日の会社の動きをまとめて 20_議事録/AI本社 に保存します</span></h2>
+    <div class="mlay"><ul class="mlist" id="minutesList"></ul><div id="minutesBody"></div></div></div></div>
+  <div class="view" id="v-docs"><div class="card"><h2>📄 最近入った書類</h2><div id="docsFull"></div></div></div>
+  <div class="view" id="v-todo"><div class="card"><h2>✅ やることと30日以内の期限</h2><div id="todoFull"></div></div></div>
+  <div class="view" id="v-decisions"><div class="card ask"><h2>① 判断が必要なこと（すべて）</h2><ul id="decisionsAll"></ul></div></div>
+  <div class="view" id="v-requests"><div class="card"><h2>💬 頼んだこと</h2><div id="requestsFull"></div></div></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<!-- データ：/dashboard スキルが、この中だけを書き換えます -->
+<script id="company-data" type="application/json">
+{
+  "company": "○○株式会社",
+  "updated": "",
+  "decisions": [],
+  "requests": [],
+  "strategy": { "policy": "", "year_goal": "", "items": [], "next_review": "" },
+  "pdca": null,
+  "pdca_history": [],
+  "depts": [],
+  "ai_log": [],
+  "money": { "balance": null, "pay30": null, "receivable": 0, "receivable_over_count": 0, "receivable_over_amount": 0,
+             "sales_month": 0, "sales_target": null, "sales_last": 0, "expense_month": 0, "monthly_sales": [], "by_client": [] },
+  "deadlines": [],
+  "deadlines30": [],
+  "todos": [],
+  "recent_docs": [],
+  "minutes": [],
+  "cash": null,
+  "peers": []
+}
+</script>
+
+<script>
+(function () {
+  var d;
+  try { d = JSON.parse(document.getElementById('company-data').textContent); }
+  catch (e) { document.getElementById('title').textContent = 'データを読めませんでした（AIに「画面を更新して」と頼んでください）'; return; }
+  var $ = function (id) { return document.getElementById(id); };
+  var esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); };
+  var yen = function (n) { return n == null ? '—' : (n < 0 ? '−¥' : '¥') + Math.abs(Number(n)).toLocaleString('ja-JP'); };
+  var pct = function (a, b) { return b ? Math.max(0, Math.min(100, Math.round(a / b * 100))) : 0; };
+  var empty = function (t) { return '<div class="empty">' + (t || 'ありません') + '</div>'; };
+  var answered = {}; try { answered = JSON.parse(localStorage.getItem('aihonsha-answered') || '{}'); } catch (e) {}
+  /* 毎日の議事録：見出し・箇条書き・太字だけの簡単な表示 */
+  var mdHtml = function (t) { var out = [], inUl = false;
+    var inl = function (x) { return esc(x).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>'); };
+    String(t || '').replace(/\r/g, '').split('\n').forEach(function (l) { var m = l.match(/^(#{1,3})\s+(.*)/), li = l.match(/^\s*[-*]\s+(.*)/);
+      if (!li && inUl) { out.push('</ul>'); inUl = false; }
+      if (m) out.push('<h' + m[1].length + '>' + inl(m[2]) + '</h' + m[1].length + '>');
+      else if (li) { if (!inUl) { out.push('<ul>'); inUl = true; } out.push('<li>' + inl(li[1]) + '</li>'); }
+      else if (l.trim() && !/^```/.test(l)) out.push('<div>' + inl(l) + '</div>'); });
+    if (inUl) out.push('</ul>'); return out.join(''); };
+  var oneLine = function (t) { var m = String(t || '').replace(/\r/g, '').match(/##\s*ひとことで\s*\n+([^\n#]+)/); return m ? m[1].replace(/^[-*]\s*/, '').trim() : ''; };
+  var selMin = null, lastD = null;
+  var renderMinutes = function (d) { lastD = d;
+    var mins = d.minutes || [], unread = mins.filter(function (x) { return !x.confirmed; });
+    $('navMin').textContent = '📝 議事録' + (unread.length ? '（未確認' + unread.length + '）' : '');
+    var top = mins[0];
+    $('minutesHome').innerHTML = '<h2 style="margin-top:10px">📝 毎日の議事録<span class="more"><a href="#minutes" target="_blank">' + (unread.length ? '未確認 ' + unread.length + '件を読む →' : 'これまでの分 →') + '</a></span></h2>' +
+      (top ? '<div class="mtop">' + esc(top.date) + '　' + (top.confirmed ? '<span class="muted">確認済み</span>' : '<b class="down">未確認</b>') + '<br>' + esc(oneLine(top.text) || '（まとめは議事録の中にあります）') + '</div>' : empty('まだありません。毎日夕方にAIが書きます'));
+    if (!mins.some(function (x) { return x.date === selMin; })) selMin = (unread[unread.length - 1] || top || {}).date || null;
+    $('minutesList').innerHTML = mins.length ? mins.map(function (x) { return '<li data-min="' + esc(x.date) + '" class="' + (x.date === selMin ? 'sel' : '') + '"><span>' + esc(x.date) + '</span>' + (x.confirmed ? '<span class="muted">✔ 確認済み</span>' : '<b class="down">未確認</b>') + '</li>'; }).join('') : '<li class="empty">まだありません</li>';
+    var cur = mins.filter(function (x) { return x.date === selMin; })[0];
+    $('minutesBody').innerHTML = cur ? '<div class="bs" style="margin-bottom:8px">' + (cur.confirmed ? '<span class="done">✔ ' + esc(cur.confirmed) + ' に確認しました</span>' : '<button class="b g" data-minok="' + esc(cur.date) + '">✔ 確認した</button>') +
+      ' <button class="b" data-minask="' + esc(cur.date) + '">この議事録についてAIに頼む</button> <span class="muted">' + esc(cur.file || '') + '</span></div><div class="md">' + mdHtml(cur.text) + '</div>' : empty('議事録はまだありません。AIが毎日夕方（設定の時刻）に書きます');
+  };
+
+  var render = function (d) {
+  var today = new Date((d.updated || '').slice(0, 10) + 'T00:00:00'); if (isNaN(today)) today = new Date();
+  var days = function (s) { var t = new Date(String(s).slice(0, 10) + 'T00:00:00'); return isNaN(t) ? null : Math.round((t - today) / 86400000); };
+  var dtag = function (s) { var n = days(s); if (n === null) return ''; if (n < 0) return '<span class="tag t-over">' + (-n) + '日過ぎ</span>'; if (n === 0) return '<span class="tag t-over">今日</span>';
+    return '<span class="tag ' + (n <= 5 ? 't-soon' : 't-ok') + '">あと' + n + '日</span>'; };
+
+  /* 見出し */
+  document.title = (d.company || '会社') + '｜今日の会社';
+  $('title').textContent = (d.company || '') + '　今日の会社';
+  $('updated').innerHTML = d._fresh || ((d.updated || '') + ' 時点・AIが更新');
+
+  /* ① 判断 */
+  var decs = (d.decisions || []).filter(function (x) { return !answered[x.id]; });
+  var decRow = function (x) {
+    var kind = x.kind || '確認', cls = kind === 'お金' ? 't-money' : '';
+    var btns = (x.buttons || ['OK', 'やめる', 'あとで']).map(function (b) { return '<button class="b' + (b === 'OK' ? ' g' : '') + '" data-dec="' + esc(x.id) + '" data-ans="' + esc(b) + '">' + esc(b) + '</button>'; }).join('');
+    var link = x.link ? '<a class="b" href="' + esc(x.link) + '" target="_blank">中身</a>' : '';
+    return '<li><span class="tag ' + cls + '">' + esc(kind) + '</span><span>' + esc(x.text) + '</span><span class="bs">' + link + btns + '</span></li>';
+  };
+  $('decTitle').innerHTML = '① あなたの判断が必要なこと（全' + decs.length + '件' + (decs.length > (d._rows || 5) ? '・大事な順に' + (d._rows || 5) + '件' : '') + '）' +
+    (decs.length > (d._rows || 5) ? '<span class="more"><a href="#decisions" target="_blank">すべて見る →</a></span>' : '');
+  $('decisions').innerHTML = decs.length ? decs.slice(0, d._rows || 5).map(decRow).join('') : empty('いまはありません。AIが進めています');
+  $('decisionsAll').innerHTML = decs.length ? decs.map(decRow).join('') : empty();
+
+  /* ② 戦略 */
+  var sg = d.strategy || {}, items = sg.items || [];
+  var sgRow = function (x, i) {
+    var p = x.pct != null ? x.pct : 0;
+    return '<div class="sg"><div class="n">戦略' + (i + 1) + '　' + esc(x.name) + ' <span class="muted">' + esc(x.goal || '') + ' → 今 ' + esc(x.now || '') + (x.late ? '（遅れ）' : '') + '</span></div>' +
+      '<div class="bar"><i class="' + (x.late ? 'w' : '') + '" style="width:' + p + '%"></i></div><div class="muted">PDCA：' + esc(x.pdca || 'なし') + '</div></div>';
+  };
+  $('strategy').innerHTML = (sg.policy || sg.year_goal ? '<div style="font-size:13.5px;margin-bottom:6px"><b>方針：</b>' + esc(sg.policy) + '　<b>年間目標：</b>' + esc(sg.year_goal) + '</div>' : '') +
+    (items.length ? '<div class="st3">' + items.map(sgRow).join('') + '</div>' : empty('まだ決めていません。設定画面の「経営の目標」を入れると、AIが戦略の案を出します')) +
+    (sg.next_review ? '<div class="muted" style="margin-top:6px">次の見直し：' + esc(sg.next_review) + '（AIが分析して案を出し、社長が決めます）</div>' : '');
+
+  /* ③ PDCA */
+  var pd = d.pdca;
+  var stages = [['P', '計画', '分析・同業調査・対策案→判断'], ['D', '実行', 'AIの部署が実行'], ['C', '評価', '目標と比べる'], ['A', '改善', '続ける／やめる／直す']];
+  if (pd) {
+    $('pdcaTitle').innerHTML = '③ PDCA（' + esc(pd.title) + '）　' + esc(pd.round || 1) + '周目<span class="more"><a href="#strategy" target="_blank">これまでの周 →</a></span>';
+    var late = (pd.days_in_stage || 0) > 7;
+    $('pdca').innerHTML = (pd.kpi ? '<div style="display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:center;font-size:13.5px"><span>' + esc(pd.kpi.label) + '</span><div class="bar"><i class="w" style="width:' + pct(pd.kpi.now, pd.kpi.target) + '%"></i></div><span>' + esc(pd.kpi.now_text || pd.kpi.now) + '（目標 ' + esc(pd.kpi.target_text || pd.kpi.target) + '）</span></div>' : '') +
+      '<div class="cycle">' + stages.map(function (s) { return '<div class="st' + (s[0] === pd.stage ? (late ? ' late' : ' now') : '') + '">' + s[0] + ' ' + s[1] + '<small>' + s[2] + '</small></div>'; }).join('') + '</div>' +
+      '<div class="muted">' + (pd.prev ? '前の周：' + esc(pd.prev) + '　' : '') + (pd.next_check ? '次の評価 ' + esc(pd.next_check) + '　' : '') + esc(pd.stage) + ' で ' + esc(pd.days_in_stage || 0) + '日目' + (late ? '<b class="down">（止まっています）</b>' : '') + '</div>' +
+      '<div class="plan">' + (pd.issue ? '<b>課題：</b>' + esc(pd.issue) + '<br>' : '') + (pd.peers ? '<b>同業：</b>' + esc(pd.peers) + '<br>' : '') + (pd.proposal ? '<b>提案：</b>' + esc(pd.proposal) : '') + '</div>';
+  } else { $('pdca').innerHTML = empty('まだ始まっていません。戦略が決まると、AIが最初の対策を提案します'); }
+
+  /* ④ 部署 */
+  var deptHtml = function (x) { var n = x.days_idle || 0, c = n >= 7 ? 'dr' : n >= 3 ? 'dy' : 'dg';
+    return '<div class="dp"><div class="n"><span class="dot ' + c + '"></span>' + esc(x.name) + '</div>' + esc(x.last || '記録なし') + '</div>'; };
+  $('depts').innerHTML = (d.depts || []).length ? d.depts.map(deptHtml).join('') : empty();
+  $('ailog').innerHTML = (d.ai_log || []).length ? d.ai_log.slice(0, 4).map(function (t) { return '<li>' + esc(t) + '</li>'; }).join('') : '<li class="empty">記録なし</li>';
+
+  /* ⑤ お金 */
+  var m = d.money || {};
+  var usable = (m.balance != null && m.pay30 != null) ? m.balance - m.pay30 : null;
+  var diff = (m.sales_month || 0) - (m.sales_last || 0);
+  var profit = (m.sales_month || 0) - (m.expense_month || 0);
+  $('money').innerHTML =
+    '<div class="k"><div class="l">使えるお金（30日先まで）</div><div class="v">' + yen(usable) + '</div><div class="s">' + (usable == null ? '設定で口座残高を入れると出ます' : '口座 ' + yen(m.balance) + ' − 支払 ' + yen(m.pay30)) + '</div></div>' +
+    '<div class="k"><div class="l">入金待ち</div><div class="v">' + yen(m.receivable) + '</div><div class="s ' + (m.receivable_over_count ? 'down' : '') + '">' + (m.receivable_over_count ? '期限切れ ' + m.receivable_over_count + '件 ' + yen(m.receivable_over_amount) : '期限切れはありません') + '</div></div>' +
+    '<div class="k"><div class="l">今月の売上</div><div class="v">' + yen(m.sales_month) + '</div><div class="s">' + (m.sales_target ? '目標の' + pct(m.sales_month, m.sales_target) + '%・' : '') + '先月比 <span class="' + (diff >= 0 ? 'up' : 'down') + '">' + (diff >= 0 ? '+' : '−') + yen(Math.abs(diff)) + '</span></div></div>' +
+    '<div class="k"><div class="l">今月の利益（見込み）</div><div class="v">' + yen(profit) + '</div><div class="s">経費 ' + yen(m.expense_month) + '</div></div>';
+  var srcName = { freee: 'freee', moneyforward: 'マネーフォワード', csv: '会計ソフトのCSV' }[m.source];
+  $('moneySrc').textContent = srcName ? srcName + ' から ' + (m.synced_at || '') + ' に取得' : '台帳と設定から計算';
+  var ms = m.monthly_sales || [], vals = ms.map(function (x) { return +x.amount || 0; }), max = Math.max.apply(null, vals.concat([1])), min = Math.min.apply(null, vals.concat([max])), base = min * 0.6;
+  $('chart').innerHTML = ms.length ? ms.map(function (x, i) { return '<div class="cb' + (i === ms.length - 1 ? ' cur' : '') + '" title="' + esc(x.month) + '：' + yen(x.amount) + '"><i style="height:' + Math.round(4 + ((+x.amount || 0) - base) / ((max - base) || 1) * 34) + 'px"></i><span>' + esc(String(x.month).slice(5).replace(/^0/, '')) + '</span></div>'; }).join('') : empty('売上台帳にデータがありません');
+
+  /* ⑥⑦ */
+  var dl = d.deadlines || [];
+  $('deadlines').innerHTML = dl.length ? dl.map(function (x) { return '<li>' + dtag(x.date) + '<span>' + esc(x.text) + '</span></li>'; }).join('') : '<li class="empty">7日以内の期限はありません</li>';
+  $('peers').innerHTML = (d.peers || []).length ? d.peers.slice(0, 3).map(function (x) { return '<li>' + esc(x.text || x) + '</li>'; }).join('') : '<li class="empty">まだ調べていません</li>';
+
+  var tbl = function (heads, rows) { return rows.length ? '<table><thead><tr>' + heads.map(function (h) { return '<th>' + h + '</th>'; }).join('') + '</tr></thead><tbody>' + rows.map(function (r) { return '<tr>' + r.join('') + '</tr>'; }).join('') + '</tbody></table>' : empty(); };
+  renderMinutes(d);
+
+  /* 資金繰り */
+  var cs = d.cash;
+  if (!cs) { $('cf').innerHTML = empty('設定で口座残高を入れると出ます'); $('cashFull').innerHTML = empty('設定（⚙️）の「お金」で、口座残高と毎月の決まった支払いを入れると出ます'); }
+  else {
+    var cls = function (x) { return x.end < 0 ? 'red' : x.end < cs.safety ? 'yel' : ''; };
+    $('cf').innerHTML = '<div class="cf">' + cs.months.map(function (x) { return '<div class="' + cls(x) + '">' + esc(x.label) + '<b>' + yen(x.end) + '</b></div>'; }).join('') + '</div>' +
+      (cs.warn ? '<div class="cfwarn down">' + esc(cs.warn) + '</div>' : '') + (cs.over ? '<div class="cfwarn muted">期限切れの入金待ち ' + yen(cs.over) + ' は入れていません</div>' : '');
+    $('cashFull').innerHTML = $('cf').innerHTML + '<div class="muted" style="margin:6px 0">はじめの残高：' + yen(cs.start) + '（' + esc(cs.start_from) + '）　安全ライン：' + yen(cs.safety) + '</div>' +
+      tbl(['月', '月初', '入金', '出金', '月末'], cs.months.map(function (x) { return ['<td>' + esc(x.label) + '</td>', '<td class="num">' + yen(x.start) + '</td>', '<td class="num up">' + yen(x.in) + '</td>', '<td class="num down">' + yen(x.out) + '</td>', '<td class="num"><b>' + yen(x.end) + '</b></td>']; })) +
+      '<h2 style="margin-top:14px">中身</h2>' + tbl(['日付', '内容', '入金', '出金'], cs.items.map(function (x) { return ['<td>' + esc(x.date) + '</td>', '<td>' + esc(x.text) + '</td>', '<td class="num">' + (x.amount > 0 ? yen(x.amount) : '') + '</td>', '<td class="num">' + (x.amount < 0 ? yen(-x.amount) : '') + '</td>']; }));
+  }
+
+  /* 別タブの画面 */
+  $('strategyFull').innerHTML = $('strategy').innerHTML + '<h2 style="margin-top:14px">いまのPDCA</h2>' + $('pdca').innerHTML +
+    '<h2 style="margin-top:14px">これまでの周</h2>' + tbl(['周', '対策', '結果', '判断'], (d.pdca_history || []).map(function (x) { return ['<td>' + esc(x.round) + '</td>', '<td>' + esc(x.action) + '</td>', '<td>' + esc(x.result) + '</td>', '<td>' + esc(x.decision) + '</td>']; })) +
+    '<h2 style="margin-top:14px">同業の動き</h2>' + tbl(['日付', '内容', '出どころ'], (d.peers || []).map(function (x) { return ['<td>' + esc(x.date || '') + '</td>', '<td>' + esc(x.text || x) + '</td>', '<td>' + (x.url ? '<a href="' + esc(x.url) + '" target="_blank">開く</a>' : '') + '</td>']; }));
+  $('deptsFull').innerHTML = tbl(['部署', 'さいごの仕事', '止まっている日数', 'この先の予定'], (d.depts || []).map(function (x) { return ['<td>' + esc(x.name) + '</td>', '<td>' + esc(x.last) + '</td>', '<td class="num">' + esc(x.days_idle || 0) + '日</td>', '<td>' + esc(x.next || '') + '</td>']; })) +
+    '<h2 style="margin-top:14px">AIの作業記録</h2><ul>' + ((d.ai_log || []).map(function (t) { return '<li>' + esc(t) + '</li>'; }).join('') || '<li class="empty">記録なし</li>') + '</ul>';
+  $('numbersFull').innerHTML = '<div class="kp" style="grid-template-columns:repeat(4,1fr)">' + $('money').innerHTML + '</div><div class="chart big" style="height:180px">' + $('chart').innerHTML + '</div>' +
+    '<h2 style="margin-top:14px">取引先別の売上（今年）</h2>' + tbl(['取引先', '金額'], (m.by_client || []).map(function (x) { return ['<td>' + esc(x.name) + '</td>', '<td class="num">' + yen(x.amount) + '</td>']; }));
+  $('docsFull').innerHTML = tbl(['受付日', '種類', '取引先', '場所'], (d.recent_docs || []).map(function (x) { return ['<td>' + esc(x.received) + '</td>', '<td>' + esc(x.type) + '</td>', '<td>' + esc(x.client) + '</td>', '<td class="muted">' + esc(x.path || '') + '</td>']; }));
+  $('todoFull').innerHTML = '<h2>やること</h2>' + tbl(['期限', 'やること', '担当'], (d.todos || []).map(function (x) { return ['<td>' + esc(x.due) + ' ' + dtag(x.due) + '</td>', '<td>' + esc(x.task) + '</td>', '<td>' + esc(x.owner) + '</td>']; })) +
+    '<h2 style="margin-top:14px">30日以内の期限</h2>' + tbl(['期限', '内容'], (d.deadlines30 || []).map(function (x) { return ['<td>' + esc(x.date) + ' ' + dtag(x.date) + '</td>', '<td>' + esc(x.text) + '</td>']; }));
+  var reqs = d.requests || [];
+  $('reqCount').textContent = reqs.length ? '頼んだこと ' + reqs.length + '件（' + reqs.filter(function (x) { return x.status !== '済'; }).length + '件 作業中）→' : '';
+  $('requestsFull').innerHTML = tbl(['頼んだ日', '内容', '状態', 'AIの返事'], reqs.map(function (x) { return ['<td>' + esc(x.date) + '</td>', '<td>' + esc(x.text) + '</td>', '<td>' + esc(x.status) + '</td>', '<td>' + esc(x.result || '') + '</td>']; }));
+  };
+  render(d);
+
+  /* 画面の切り替え（#strategy などで別タブに） */
+  var show = function () { var h = (location.hash || '#home').slice(1); var v = $('v-' + h) ? h : 'home';
+    Array.prototype.forEach.call(document.querySelectorAll('.view'), function (el) { el.classList.toggle('on', el.id === 'v-' + v); }); };
+  window.addEventListener('hashchange', show); show();
+
+  /* 会社フォルダへの書き込み（判断箱・依頼箱）。Chrome / Edge の「フォルダを開く」機能を使う */
+  var toast = function (t) { var el = $('toast'); el.textContent = t; el.style.display = 'block'; clearTimeout(el._t); el._t = setTimeout(function () { el.style.display = 'none'; }, 3500); };
+  var idb = function (mode, fn) { return new Promise(function (ok, ng) { var r = indexedDB.open('aihonsha', 1); r.onupgradeneeded = function () { r.result.createObjectStore('h'); };
+    r.onsuccess = function () { var tx = r.result.transaction('h', mode); var q = fn(tx.objectStore('h')); tx.oncomplete = function () { ok(q && q.result); }; tx.onerror = ng; }; r.onerror = ng; }); };
+  var getDir = async function (ask) {
+    if (!window.showDirectoryPicker) return null;
+    var h = await idb('readonly', function (s) { return s.get('dir'); }).catch(function () { return null; });
+    if (h && (await h.queryPermission({ mode: 'readwrite' })) === 'granted') return h;
+    if (!ask) return null;
+    if (h && (await h.requestPermission({ mode: 'readwrite' })) === 'granted') return h;
+    h = await window.showDirectoryPicker({ mode: 'readwrite' });
+    await idb('readwrite', function (s) { return s.put(h, 'dir'); });
+    return h;
+  };
+  var appendBox = async function (name, rec) {
+    var dir = await getDir(true); if (!dir) return false;
+    var box = await dir.getDirectoryHandle('箱', { create: true });
+    var fh = await box.getFileHandle(name, { create: true });
+    var list = []; try { list = JSON.parse(await (await fh.getFile()).text() || '[]'); } catch (e) { list = []; }
+    list.push(rec); var w = await fh.createWritable(); await w.write(JSON.stringify(list, null, 1)); await w.close(); return true;
+  };
+  var now = function () { var t = new Date(); return t.getFullYear() + '-' + String(t.getMonth() + 1).padStart(2, '0') + '-' + String(t.getDate()).padStart(2, '0') + ' ' + String(t.getHours()).padStart(2, '0') + ':' + String(t.getMinutes()).padStart(2, '0'); };
+  var fallback = function (text) { if (navigator.clipboard) navigator.clipboard.writeText(text); toast('このブラウザでは保存できないため、文をコピーしました。Claude に貼り付けてください'); };
+  if (window.showDirectoryPicker) { getDir(false).then(function (h) { $('connectBtn').hidden = !!h; }); $('connectBtn').onclick = function () { getDir(true).then(function (h) { if (h) { $('connectBtn').hidden = true; toast('会社フォルダとつながりました'); } }); }; }
+
+  document.addEventListener('click', function (ev) {
+    var b = ev.target.closest('[data-dec]'); if (!b) return;
+    var rec = { id: b.dataset.dec, answer: b.dataset.ans, time: now() };
+    appendBox('判断箱.json', rec).then(function (ok) {
+      if (!ok) return fallback('判断の返事：' + rec.id + ' → ' + rec.answer);
+      answered[rec.id] = rec.answer; try { localStorage.setItem('aihonsha-answered', JSON.stringify(answered)); } catch (e) {}
+      b.closest('.bs').outerHTML = '<span class="done">「' + rec.answer + '」と伝えました</span>';
+      toast('伝えました。AIが次に動くときに実行します（すぐなら Claude に「進めて」）');
+    }).catch(function () { toast('保存できませんでした。「会社フォルダとつなぐ」を押してください'); });
+  });
+  $('reqForm').addEventListener('submit', function (ev) {
+    ev.preventDefault(); var t = $('reqText').value.trim(); if (!t) return;
+    var rec = { id: 'r' + Date.now(), text: t, time: now(), status: '未着手' };
+    appendBox('依頼箱.json', rec).then(function (ok) {
+      if (!ok) return fallback(t);
+      $('reqText').value = ''; toast('頼みました。AIが次に動くときに取りかかります（すぐなら Claude に「進めて」）');
+    }).catch(function () { toast('保存できませんでした。「会社フォルダとつなぐ」を押してください'); });
+  });
+
+  /* 議事録：選ぶ・確認した（台帳/議事録の確認.json に画面が書く）・AIに頼む */
+  document.addEventListener('click', function (ev) {
+    var li = ev.target.closest('[data-min]'); if (li) { selMin = li.dataset.min; renderMinutes(lastD); return; }
+    var ask = ev.target.closest('[data-minask]'); if (ask) { $('reqText').value = '「' + ask.dataset.minask + ' の議事録」について：'; $('reqText').focus(); window.scrollTo(0, 0); return; }
+    var ok = ev.target.closest('[data-minok]'); if (!ok) return;
+    var date = ok.dataset.minok, t = now();
+    (async function () { var dir = await getDir(true); if (!dir) return false;
+      var led = await dir.getDirectoryHandle('台帳', { create: true }), fh = await led.getFileHandle('議事録の確認.json', { create: true });
+      var o = {}; try { o = JSON.parse(await (await fh.getFile()).text() || '{}'); } catch (e) { o = {}; }
+      o[date] = t; var w = await fh.createWritable(); await w.write(JSON.stringify(o, null, 1)); await w.close(); return true; })().then(function (done) {
+      if (!done) return toast('確認を残すには「会社フォルダとつなぐ」を押してください');
+      (lastD.minutes || []).forEach(function (x) { if (x.date === date) x.confirmed = t; }); renderMinutes(lastD); toast(date + ' の議事録を確認しました');
+    }).catch(function () { toast('保存できませんでした。「会社フォルダとつなぐ」を押してください'); });
+  });
+
+  /* 資金繰り：入出金の予定を足す（台帳/入出金の予定.csv に画面が書く） */
+  $('cfForm').addEventListener('submit', function (ev) {
+    ev.preventDefault(); var amt = String($('cfAmt').value).replace(/[,，円¥\s]/g, ''); if (!/^\d+$/.test(amt)) return toast('金額は数字で入れてください');
+    if (/\d{7,}/.test($('cfText').value)) { if (!confirm('長い数字が入っています。口座番号などではありませんか？')) return; }
+    var q = function (v) { v = String(v).replace(/"/g, '""'); return /[",\n]/.test(v) ? '"' + v + '"' : v; };
+    var line = [$('cfDate').value, q($('cfText').value.trim()), $('cfKind').value === '入金' ? amt : '', $('cfKind').value === '出金' ? amt : '', '画面から ' + now()].join(',');
+    (async function () { var dir = await getDir(true); if (!dir) return false;
+      var led = await dir.getDirectoryHandle('台帳', { create: true }), fh = await led.getFileHandle('入出金の予定.csv', { create: true });
+      var old = await (await fh.getFile()).text(); if (!old.trim()) old = '﻿日付,内容,入金,出金,メモ\n'; if (!/\n$/.test(old)) old += '\n';
+      var w = await fh.createWritable(); await w.write(old + line + '\n'); await w.close(); return true; })().then(function (ok) {
+      if (!ok) return toast('「会社フォルダとつなぐ」を押してください');
+      $('cfText').value = ''; $('cfAmt').value = ''; toast('足しました'); refresh(false); }).catch(function () { toast('保存できませんでした。「会社フォルダとつなぐ」を押してください'); });
+  });
+
+  /* ===== 台帳から自分で計算する（AIを使わない＝トークン0）。開いたとき・3分ごと・画面に戻ったとき ===== */
+  var csv = function (text) {
+    text = text.replace(/^﻿/, ''); var rows = [], row = [], f = '', q = false;
+    for (var i = 0; i < text.length; i++) { var c = text[i];
+      if (q) { if (c === '"') { if (text[i + 1] === '"') { f += '"'; i++; } else q = false; } else f += c; }
+      else if (c === '"') q = true; else if (c === ',') { row.push(f); f = ''; } else if (c === '\n' || c === '\r') { if (c === '\r' && text[i + 1] === '\n') i++; row.push(f); rows.push(row); row = []; f = ''; } else f += c; }
+    if (f !== '' || row.length) { row.push(f); rows.push(row); }
+    var head = rows.shift() || []; return rows.filter(function (r) { return r.join('').trim(); }).map(function (r) { var o = {}; head.forEach(function (h, j) { o[h.trim()] = (r[j] || '').trim(); }); return o; });
+  };
+  var rd = async function (dir, path) { try { var parts = path.split('/'), cur = dir; for (var i = 0; i < parts.length - 1; i++) cur = await cur.getDirectoryHandle(parts[i]);
+    var f = await (await cur.getFileHandle(parts[parts.length - 1])).getFile(); return { text: await f.text(), time: f.lastModified }; } catch (e) { return null; } };
+  var js = function (r, def) { try { return r ? JSON.parse(r.text) : def; } catch (e) { return def; } };
+  var num = function (v) { var n = Number(String(v == null ? '' : v).replace(/[,，円¥\s]/g, '')); return isNaN(n) ? 0 : n; };
+  var ymd = function (t) { return t.getFullYear() + '-' + String(t.getMonth() + 1).padStart(2, '0') + '-' + String(t.getDate()).padStart(2, '0'); };
+  var hm = function (ms) { var t = new Date(ms); return (t.getMonth() + 1) + '/' + t.getDate() + ' ' + String(t.getHours()).padStart(2, '0') + ':' + String(t.getMinutes()).padStart(2, '0'); };
+  var ago = function (ms) { var m = Math.round((Date.now() - ms) / 60000); return m < 1 ? 'たった今' : m < 60 ? m + '分前' : m < 1440 ? Math.round(m / 60) + '時間前' : Math.round(m / 1440) + '日前'; };
+  var dot = function (ms, warnH, badH) { var h = (Date.now() - ms) / 3600000; return '<span class="dot ' + (h > badH ? 'dr' : h > warnH ? 'dy' : 'dg') + '"></span>'; };
+
+  var compute = async function (dir) {
+    var F = {}, names = ['設定.json', '台帳/売上台帳.csv', '台帳/書類台帳.csv', '台帳/やること.csv', '台帳/判断待ち.json', '台帳/経営.json', '台帳/部署の記録.csv', '台帳/お金.json', '箱/依頼箱.json', '箱/判断箱.json', '台帳/議事録の確認.json', '台帳/入出金の予定.csv'];
+    var got = await Promise.all(names.map(function (n) { return rd(dir, n); })); names.forEach(function (n, i) { F[n] = got[i]; });
+    var st = js(F['設定.json'], {}), now0 = new Date(), today = ymd(now0), ym = today.slice(0, 7);
+    var lm = new Date(now0.getFullYear(), now0.getMonth() - 1, 1), lym = ymd(lm).slice(0, 7);
+    var dd = function (s) { var t = new Date(String(s).slice(0, 10) + 'T00:00:00'); return isNaN(t) ? null : Math.round((t - new Date(today + 'T00:00:00')) / 86400000); };
+    var sales = F['台帳/売上台帳.csv'] ? csv(F['台帳/売上台帳.csv'].text) : [], docs = F['台帳/書類台帳.csv'] ? csv(F['台帳/書類台帳.csv'].text) : [];
+    var todo = F['台帳/やること.csv'] ? csv(F['台帳/やること.csv'].text) : [], log = F['台帳/部署の記録.csv'] ? csv(F['台帳/部署の記録.csv'].text) : [];
+    var d = { company: st.company || '', updated: today, _rows: num(st.decision_rows) || 5 };
+    /* 判断（返事済みは外す・「あとで」は again の日まで隠す） */
+    var answers = js(F['箱/判断箱.json'], []).reduce(function (a, x) { a[x.id] = x.answer; return a; }, {});
+    d.decisions = js(F['台帳/判断待ち.json'], []).filter(function (x) { return !answers[x.id] && !(x.again && x.again > today); });
+    d.requests = js(F['箱/依頼箱.json'], []).slice().reverse().map(function (x) { return { date: x.time, text: x.text, status: x.status, result: x.result }; });
+    /* 経営 */
+    var k = js(F['台帳/経営.json'], {}); var items = k.strategies || [];
+    d.strategy = { policy: k.policy || st.policy || '', year_goal: k.year_goal || (st.year_sales ? '売上 ' + Number(st.year_sales).toLocaleString() + '円' + (st.year_profit ? '・利益 ' + Number(st.year_profit).toLocaleString() + '円' : '') : ''), items: items, next_review: k.next_review || '' };
+    d.pdca = k.pdca ? Object.assign({}, k.pdca, { days_in_stage: k.pdca.stage_since ? Math.max(0, -dd(k.pdca.stage_since)) : (k.pdca.days_in_stage || 0) }) : null;
+    d.pdca_history = k.pdca_history || []; d.peers = k.peers || [];
+    /* 部署 */
+    var deptMap = { d_jimu: '事務', d_keiri: '経理', d_eigyo: '営業', d_hasshin: '発信', d_kikaku: '企画', d_jinji: '人事' };
+    d.depts = Object.keys(deptMap).filter(function (key) { return st[key] !== false && (st[key] || key !== 'd_hasshin' && key !== 'd_jinji'); }).map(function (key) {
+      var name = deptMap[key], rows = log.filter(function (r) { return r['部署'] === name; }).sort(function (a, b) { return a['日付'] < b['日付'] ? 1 : -1; }), r = rows[0];
+      if (!r) return { name: name, last: 'まだ記録なし', days_idle: 0 };
+      var n = -dd(r['日付']); return { name: name, last: (n === 0 ? '今日' : n === 1 ? '昨日' : r['日付'].slice(5)) + '：' + r['やったこと'], days_idle: n, next: r['次の予定'] || '' }; });
+    var lastDay = log.map(function (r) { return r['日付']; }).sort().pop();
+    d.ai_log = log.filter(function (r) { return r['日付'] === lastDay; }).map(function (r) { return r['部署'] + '：' + r['やったこと']; }).reverse();
+    /* お金：会計ソフトの数字（3日以内）があればそれを、なければ台帳から */
+    var acc = js(F['台帳/お金.json'], null), fresh = acc && acc.synced_at && (Date.now() - new Date(acc.synced_at.replace(' ', 'T')).getTime()) < 3 * 86400000;
+    var unpaid = sales.filter(function (r) { return !r['入金日']; });
+    var over = unpaid.filter(function (r) { var n = dd(r['入金期限']); return n !== null && n < 0; });
+    var sumM = function (rows, key, mon) { return rows.filter(function (r) { return String(r[key]).slice(0, 7) === mon; }).reduce(function (a, r) { return a + num(r['金額']); }, 0); };
+    var fixed = String(st.fixed_pay || '').split(/\n/).map(function (l) { var p = l.split(/[,，]/); return p.length >= 3 ? { name: p[0].trim(), amount: num(p[1]), day: p[2].trim() } : null; }).filter(Boolean);
+    var pay30 = fixed.reduce(function (a, f) { return a + f.amount; }, 0);
+    var months = []; for (var i = 11; i >= 0; i--) { var t = new Date(now0.getFullYear(), now0.getMonth() - i, 1), mo = ymd(t).slice(0, 7); months.push({ month: mo, amount: sumM(sales, '請求日', mo) }); }
+    var byc = {}; sales.forEach(function (r) { if (String(r['請求日']).slice(0, 4) === today.slice(0, 4)) byc[r['取引先']] = (byc[r['取引先']] || 0) + num(r['金額']); });
+    var m = { source: '', balance: st.balance ? num(st.balance) : null, pay30: st.balance ? pay30 : null,
+      receivable: unpaid.reduce(function (a, r) { return a + num(r['金額']); }, 0), receivable_over_count: over.length, receivable_over_amount: over.reduce(function (a, r) { return a + num(r['金額']); }, 0),
+      sales_month: sumM(sales, '請求日', ym), sales_last: sumM(sales, '請求日', lym), sales_target: st.month_sales ? num(st.month_sales) : null,
+      expense_month: docs.filter(function (r) { return /領収書|経費/.test(r['書類の種類']) && String(r['書類の日付']).slice(0, 7) === ym; }).reduce(function (a, r) { return a + num(r['金額']); }, 0),
+      monthly_sales: months, by_client: Object.keys(byc).map(function (n) { return { name: n, amount: byc[n] }; }).sort(function (a, b) { return b.amount - a.amount; }).slice(0, 10) };
+    if (fresh) { ['balance', 'receivable', 'pay30', 'sales_month', 'expense_month'].forEach(function (x) { if (acc[x] != null) m[x] = acc[x]; });
+      if (acc.monthly_sales && acc.monthly_sales.length) m.monthly_sales = acc.monthly_sales; m.source = acc.source; m.synced_at = acc.synced_at;
+      if (acc.receivable_items) { var ov = acc.receivable_items.filter(function (x) { var n = dd(x.due); return n !== null && n < 0; }); m.receivable_over_count = ov.length; m.receivable_over_amount = ov.reduce(function (a, x) { return a + num(x.amount); }, 0); } }
+    d.money = m;
+    /* 資金繰り：今月の残り＋3か月。売上の見込み（未請求）は入れない＝かたい見込み */
+    d.cash = null;
+    var bal0 = fresh && acc.balance != null ? num(acc.balance) : (st.balance ? num(st.balance) : null);
+    if (bal0 != null) {
+      var t0 = new Date(today + 'T00:00:00'), tEnd = new Date(now0.getFullYear(), now0.getMonth() + 4, 0), ev = [], overIn = 0;
+      var inR = function (s) { var t = new Date(String(s).slice(0, 10) + 'T00:00:00'); return !isNaN(t) && t >= t0 && t <= tEnd; };
+      var recv = fresh && acc.receivable_items ? acc.receivable_items.map(function (x) { return { due: x.due, amount: num(x.amount), name: x.name || x.client || '' }; })
+        : unpaid.map(function (r) { return { due: r['入金期限'], amount: num(r['金額']), name: r['取引先'] }; });
+      recv.forEach(function (x) { if (inR(x.due)) ev.push({ date: String(x.due).slice(0, 10), text: x.name + ' の入金', amount: x.amount }); else { var n = dd(x.due); if (n !== null && n < 0) overIn += x.amount; } });
+      var pays = fresh && acc.payable_items ? acc.payable_items.map(function (x) { return { due: x.due, amount: num(x.amount), name: x.name || x.client || '' }; })
+        : docs.filter(function (r) { return r['書類の種類'] === '請求書' && /支払う/.test(r['メモ'] || '') && !/支払済|支払い済|払った/.test(r['メモ'] || ''); }).map(function (r) { return { due: r['期限'], amount: num(r['金額']), name: r['取引先'] }; });
+      pays.forEach(function (x) { if (x.amount && inR(x.due)) ev.push({ date: String(x.due).slice(0, 10), text: x.name + ' への支払い（請求書）', amount: -x.amount }); });
+      for (var k = 0; k < 4; k++) fixed.forEach(function (f) { var y = now0.getFullYear(), mo = now0.getMonth() + k, last = new Date(y, mo + 1, 0).getDate(), day = f.day === '末日' ? last : Math.min(num(f.day), last);
+        if (!day) return; var t = new Date(y, mo, day); if (t >= t0) ev.push({ date: ymd(t), text: f.name + '（毎月）', amount: -f.amount }); });
+      (F['台帳/入出金の予定.csv'] ? csv(F['台帳/入出金の予定.csv'].text) : []).forEach(function (r) { if (!inR(r['日付'])) return;
+        var a = num(r['入金']) - num(r['出金']); if (a) ev.push({ date: String(r['日付']).slice(0, 10), text: r['内容'] + (r['メモ'] ? '（' + r['メモ'] + '）' : ''), amount: a }); });
+      if (st.cf_avg_expense !== false) { var tot = 0; for (var j = 1; j <= 3; j++) { var pm = ymd(new Date(now0.getFullYear(), now0.getMonth() - j, 1)).slice(0, 7);
+          tot += docs.filter(function (r) { return /領収書|経費/.test(r['書類の種類']) && String(r['書類の日付']).slice(0, 7) === pm; }).reduce(function (a, r) { return a + num(r['金額']); }, 0); }
+        var avg = Math.round(tot / 3);
+        if (avg) for (var q = 0; q < 4; q++) { var y2 = now0.getFullYear(), m2 = now0.getMonth() + q, last2 = new Date(y2, m2 + 1, 0).getDate(), part = q ? 1 : (last2 - now0.getDate() + 1) / last2;
+          ev.push({ date: ymd(new Date(y2, m2, last2)), text: 'いつもの経費（直近3か月の平均' + (q ? '' : '・今月は残りの日数分') + '）', amount: -Math.round(avg * part) }); } }
+      ev.sort(function (a, b) { return a.date < b.date ? -1 : 1; });
+      var months = [], run = bal0;
+      for (var z = 0; z < 4; z++) { var mm = ymd(new Date(now0.getFullYear(), now0.getMonth() + z, 1)).slice(0, 7), its = ev.filter(function (x) { return x.date.slice(0, 7) === mm; });
+        var inn = its.filter(function (x) { return x.amount > 0; }).reduce(function (a, x) { return a + x.amount; }, 0), out = its.filter(function (x) { return x.amount < 0; }).reduce(function (a, x) { return a - x.amount; }, 0);
+        months.push({ ym: mm, label: (+mm.slice(5)) + '月末' + (z ? '' : '（今月）'), start: run, in: inn, out: out, end: run + inn - out }); run += inn - out; }
+      var safety = st.cf_safety ? num(st.cf_safety) : fixed.reduce(function (a, f) { return a + f.amount; }, 0);
+      var bad = months.filter(function (x) { return x.end < 0; })[0], low = months.filter(function (x) { return x.end < safety; })[0];
+      d.cash = { start: bal0, start_from: fresh && acc.balance != null ? '会計ソフト ' + acc.synced_at : '設定の口座残高' + (st.balance_date ? '（' + st.balance_date + '）' : ''), safety: safety, over: overIn, months: months, items: ev,
+        warn: bad ? bad.label + 'に残高が足りなくなる見込みです（' + yen(bad.end) + '）' : low ? low.label + 'に残高が安全ライン（' + yen(safety) + '）を下回る見込みです（' + yen(low.end) + '）' : '' };
+    }
+    /* 期限 */
+    var nd = num(st.notice_days) || 7, all = [];
+    docs.forEach(function (r) { if (r['期限']) all.push({ date: r['期限'], text: r['取引先'] + ' ' + r['書類の種類'] + (r['メモ'] ? '（' + r['メモ'] + '）' : '') }); });
+    unpaid.forEach(function (r) { if (r['入金期限']) all.push({ date: r['入金期限'], text: r['取引先'] + ' 入金 ¥' + num(r['金額']).toLocaleString() }); });
+    todo.forEach(function (r) { if (r['期限'] && r['状態'] !== '済') all.push({ date: r['期限'], text: r['内容'] + (r['担当'] ? '（' + r['担当'] + '）' : '') }); });
+    fixed.forEach(function (f) { var day = f.day === '末日' ? new Date(now0.getFullYear(), now0.getMonth() + 1, 0).getDate() : num(f.day); if (day) { var t = new Date(now0.getFullYear(), now0.getMonth(), day); if (t < new Date(today + 'T00:00:00')) t = new Date(now0.getFullYear(), now0.getMonth() + 1, day); all.push({ date: ymd(t), text: f.name + ' の支払い ¥' + f.amount.toLocaleString() }); } });
+    all.sort(function (a, b) { return a.date < b.date ? -1 : 1; });
+    d.deadlines = all.filter(function (x) { var n = dd(x.date); return n !== null && n <= nd; });
+    d.deadlines30 = all.filter(function (x) { var n = dd(x.date); return n !== null && n <= 30; });
+    d.todos = todo.filter(function (r) { return r['状態'] !== '済'; }).map(function (r) { return { due: r['期限'], task: r['内容'], owner: r['担当'] }; }).sort(function (a, b) { return a.due < b.due ? -1 : 1; });
+    d.recent_docs = docs.slice().sort(function (a, b) { return a['受付日'] < b['受付日'] ? 1 : -1; }).slice(0, 20).map(function (r) { return { received: r['受付日'], type: r['書類の種類'], client: r['取引先'], path: r['ファイルの場所'] }; });
+    /* 毎日の議事録（20_議事録/AI本社 の新しい31日分） */
+    d.minutes = []; try { var mdir = await (await dir.getDirectoryHandle('20_議事録')).getDirectoryHandle('AI本社'), conf = js(F['台帳/議事録の確認.json'], {}), fl = [];
+      for await (var e of mdir.values()) if (e.kind === 'file' && /^\d{4}-\d{2}-\d{2}.*議事録\.md$/.test(e.name)) fl.push(e);
+      fl.sort(function (a, b) { return a.name < b.name ? 1 : -1; }); fl = fl.slice(0, 31);
+      d.minutes = await Promise.all(fl.map(async function (e) { var t = await (await e.getFile()).text(), dt = e.name.slice(0, 10); return { date: dt, file: '20_議事録/AI本社/' + e.name, text: t, confirmed: conf[dt] || '' }; }));
+    } catch (e) { d.minutes = []; }
+    /* 新しさの表示：画面は今計算・AIの最後の作業・会計の取得 */
+    var aiTime = Math.max.apply(null, ['台帳/判断待ち.json', '台帳/経営.json', '台帳/部署の記録.csv'].map(function (n) { return F[n] ? F[n].time : 0; }));
+    var accTime = acc && acc.synced_at ? new Date(acc.synced_at.replace(' ', 'T')).getTime() : 0;
+    d._fresh = dot(Date.now(), 1, 2) + '台帳から ' + hm(Date.now()) + ' に計算　' + (aiTime ? dot(aiTime, 24, 72) + 'AIの最後の作業 ' + ago(aiTime) + '　' : '') +
+      (st.accounting && st.accounting !== 'none' ? (accTime ? dot(accTime, 8, 24) + '会計ソフト ' + ago(accTime) : '<span class="dot dr"></span>会計ソフト まだ取得なし') : '') +
+      '　<button class="b" id="refreshBtn" type="button">↻ 今すぐ更新</button>';
+    d._needMoney = st.accounting && st.accounting !== 'none' && (!accTime || Date.now() - accTime > 6 * 3600000);
+    return d;
+  };
+  var live = null;
+  var refresh = async function (byHand) {
+    var dir = await getDir(false); if (!dir) return;
+    try { live = await compute(dir); render(live); if (byHand) toast('最新にしました'); } catch (e) { if (byHand) toast('台帳を読めませんでした'); }
+    if (byHand && live && live._needMoney) { var reqs = live.requests || []; if (!reqs.some(function (x) { return x.status !== '済' && /money-sync/.test(x.text); }))
+      appendBox('依頼箱.json', { id: 'r' + Date.now(), text: '会計ソフトの数字が古いので /money-sync で取り直して', time: now(), status: '未着手' }).then(function () { toast('最新にしました。会計ソフトの数字はAIに取り直しを頼みました'); }); }
+  };
+  document.addEventListener('click', function (ev) { if (ev.target.id === 'refreshBtn') refresh(true); });
+  refresh(false); setInterval(function () { if (!document.hidden) refresh(false); }, 180000);
+  document.addEventListener('visibilitychange', function () { if (!document.hidden) refresh(false); });
+  $('connectBtn').addEventListener('click', function () { setTimeout(function () { refresh(true); }, 800); });
+})();
+</script>
+</body>
+</html>

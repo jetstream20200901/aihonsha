@@ -1,0 +1,10 @@
+{
+ "policy": "",
+ "year_goal": "",
+ "strategies": [],
+ "next_review": "",
+ "pdca": null,
+ "pdca_history": [],
+ "peers": [],
+ "_説明": "経営戦略とPDCAの記録。/pdca スキルが書き換える。strategies=[{name,goal,now,pct,late,pdca}]、pdca={title,strategy,round,stage(P/D/C/A),stage_since(YYYY-MM-DD),kpi:{label,now,target,now_text,target_text},prev,next_check,issue,peers,proposal}、pdca_history=[{round,action,result,decision}]、peers=[{date,company,text,url}]"
+}

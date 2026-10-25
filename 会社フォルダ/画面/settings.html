@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>設定｜AI本社</title>
+<style>
+  :root { --bg:#f6f5f1; --card:#fff; --ink:#1f2328; --muted:#5f6670; --line:#e3e1da; --accent:#2f6f5e; --soon:#9a6700; --warn:#b4232a; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#16181b; --card:#1f2226; --ink:#e8e6e1; --muted:#a0a4aa; --line:#33373c; --accent:#6fc2a8; --soon:#e3b341; --warn:#ff7b80; } }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font-family:"Hiragino Sans","Yu Gothic UI","Meiryo",system-ui,sans-serif; line-height:1.6; }
+  .wrap { max-width:1300px; margin:0 auto; padding:18px 20px 60px; display:grid; grid-template-columns:200px 1fr; gap:18px; }
+  h1 { grid-column:1/-1; font-size:22px; margin:0; display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+  aside { position:sticky; top:12px; align-self:start; } aside a { display:block; padding:7px 12px; border-radius:8px; color:var(--ink); text-decoration:none; font-size:14px; }
+  aside a:hover { background:var(--card); }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:16px 18px; margin-bottom:12px; scroll-margin-top:12px; }
+  h2 { font-size:16px; margin:0 0 6px; }
+  label { display:block; font-size:13px; color:var(--muted); margin:10px 0 3px; }
+  input, select, textarea { width:100%; padding:7px 10px; border:1px solid var(--line); border-radius:8px; font-size:15px; font-family:inherit; background:var(--card); color:var(--ink); }
+  textarea { min-height:70px; }
+  .row { display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:0 14px; }
+  .chk { display:flex; gap:8px; align-items:center; font-size:14px; margin:5px 0; } .chk input { width:auto; }
+  .hint { font-size:12px; color:var(--muted); }
+  .bar { position:sticky; bottom:0; background:var(--bg); padding:10px 0; display:flex; gap:10px; align-items:center; flex-wrap:wrap; border-top:1px solid var(--line); }
+  .save { background:var(--accent); color:#fff; border:0; border-radius:10px; padding:10px 26px; font-size:15px; cursor:pointer; }
+  .sub { background:var(--card); color:var(--ink); border:1px solid var(--line); border-radius:10px; padding:9px 16px; font-size:14px; cursor:pointer; }
+  .status { font-size:13px; } .ok { color:var(--accent); } .ng { color:var(--warn); }
+  .steps { border:2px solid var(--accent); border-radius:10px; padding:10px 14px; margin-top:10px; font-size:14px; }
+  .steps ol { margin:6px 0 4px; padding-left:22px; } .steps li { margin:3px 0; } .steps a { color:var(--accent); font-weight:700; }
+  .explain { margin-top:10px; font-size:14px; } .explain summary { cursor:pointer; color:var(--accent); font-weight:700; } .explain ul { margin:6px 0; padding-left:20px; } .explain li { margin:4px 0; }
+  @media (max-width:800px) { .wrap { grid-template-columns:1fr; } aside { position:static; display:flex; flex-wrap:wrap; gap:4px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>⚙️ 設定 <a href="dashboard.html" style="font-size:14px;font-weight:400">← 今日の会社にもどる</a></h1>
+  <aside>
+    <a href="#s-basic">会社の基本</a><a href="#s-goal">経営の目標</a><a href="#s-money">お金</a><a href="#s-mail">仕事用のメール</a><a href="#s-ai">AIへの任せ方</a>
+    <a href="#s-notice">お知らせ</a><a href="#s-show">画面に出すもの</a><a href="#s-depts">部署</a><a href="#s-peers">同業として見る会社</a>
+  </aside>
+  <main>
+    <form id="f">
+      <div class="card" id="s-basic"><h2>会社の基本</h2>
+        <div class="row"><div><label>会社名</label><input name="company"></div><div><label>業種</label><input name="industry" placeholder="例：工務店・リフォーム"></div><div><label>地域</label><input name="area" placeholder="例：静岡県富士市"></div></div>
+        <div class="row"><div><label>締め日</label><select name="closing_day"><option>毎月末日</option><option>20日</option><option>25日</option><option>15日</option></select></div>
+          <div><label>入金期限の初期値</label><select name="pay_term"><option>翌月末日</option><option>翌々月末日</option><option>請求から30日</option></select></div>
+          <div><label>消費税</label><select name="tax"><option>税込で記録</option><option>税抜で記録</option></select></div></div>
+        <div class="row"><div><label>請求書番号の形</label><select name="invoice_no"><option>年-月-連番（2026-10-001）</option><option>年-連番（2026-0001）</option></select></div>
+          <div><label>社長の呼び方（AIが使う）</label><input name="boss_name" placeholder="例：社長、山田さん"></div></div>
+      </div>
+
+      <div class="card" id="s-goal"><h2>経営の目標</h2>
+        <div class="hint">ここを入れると、AIが会社の数字と同業の動きを分析して「重点戦略」と「対策（PDCA）」の案を出します。決めるのは社長です。</div>
+        <label>会社の方針（ひとこと）</label><input name="policy" placeholder="例：地域で一番、相談しやすい工務店">
+        <div class="row"><div><label>今年度の売上目標（円）</label><input name="year_sales" inputmode="numeric"></div><div><label>今年度の利益目標（円）</label><input name="year_profit" inputmode="numeric"></div><div><label>年度の始まり</label><select name="fy_start"><option>4月</option><option>1月</option><option>10月</option><option>7月</option></select></div></div>
+        <label>重点戦略（空ならAIが案を出します）</label>
+        <div class="row"><div><input name="strategy1" placeholder="戦略1 例：新しいお客を増やす"></div><div><input name="strategy2" placeholder="戦略2"></div><div><input name="strategy3" placeholder="戦略3"></div></div>
+        <div class="row"><div><label>戦略の見直し</label><select name="review_cycle"><option>3か月ごと</option><option>毎月</option><option>半年ごと</option></select></div><div><label>PDCAの評価</label><select name="pdca_cycle"><option>毎月</option><option>2週間ごと</option><option>毎週</option></select></div></div>
+      </div>
+
+      <div class="card" id="s-money"><h2>お金</h2>
+        <div class="row"><div><label>会計ソフト</label><select name="accounting"><option value="none">使わない（口座残高を手で入れる）</option><option value="freee">freee</option><option value="moneyforward">マネーフォワード クラウド会計</option><option value="csv">弥生・そのほか（CSVを置く）</option></select>
+          <div class="hint">つなぐと、口座残高・入金待ち・支払い・売上・経費を毎朝自動で取ります（AIは読むだけ）。</div></div>
+          <div style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;padding-bottom:4px">
+            <button class="save" type="button" id="linkBtn" style="padding:8px 18px">🔗 連携する</button>
+            <button class="sub" type="button" id="testBtn">✔ つながっているか確かめる</button></div></div>
+        <div id="linkSteps" class="steps" hidden></div>
+        <details class="explain"><summary>「コネクタ」とは？（はじめての方へ）</summary>
+          <p><b>コネクタ</b>は、Claude（AI）と、ふだん使っているサービス（会計ソフトなど）をつなぐ「通り道」です。Claude のアプリの <b>設定 → コネクタ</b> で追加します。</p>
+          <ul>
+            <li><b>つなぐと</b>：AIが会計ソフトの数字（口座残高・売掛金・買掛金・試算表など）を読めるようになります。毎朝の確認で、画面の「お金」が自動で最新になります。</li>
+            <li><b>ログインは社長が</b>：つなぐときは会計ソフトのログイン画面が出ます。そこで社長が自分でログインし、「許可」を押します。パスワードをAIや、この設定画面に入れることはありません。</li>
+            <li><b>読むだけにする</b>：許可の画面で「参照（読むだけ）」が選べるときは、それを選んでください。AIは会計ソフトに書き込まない決まりになっています（会社のルール CLAUDE.md）。</li>
+            <li><b>いつでも外せる</b>：やめたいときは、Claude の 設定 → コネクタ で外すか、会計ソフト側で許可を取り消します。</li>
+            <li><b>お金はかかる？</b>：コネクタ自体は無料です。freee・マネーフォワードの利用料は、今の契約のままで使えます（2026年10月時点。各社の最新の案内で確かめてください）。</li>
+          </ul>
+        </details>
+        <div class="row"><div><label>口座残高（円・合計）</label><input name="balance" inputmode="numeric"><div class="hint">会計ソフトを使わないときだけ。週に1回くらい入れ直してください</div></div><div><label>口座残高を入れた日</label><input name="balance_date" type="date"></div><div><label>今月の売上目標（円）</label><input name="month_sales" inputmode="numeric"></div></div>
+        <label>毎月の決まった支払い（1行に1つ：名前,金額,支払日）</label><textarea name="fixed_pay" placeholder="家賃,150000,25&#10;給料,420000,25&#10;借入の返済,80000,末日"></textarea>
+        <div class="row"><div><label>資金繰りの安全ライン（円）</label><input name="cf_safety" inputmode="numeric"><div class="hint">月末の残高がこれを下回ると黄色で知らせます。空なら「決まった支払い」1か月分</div></div></div>
+        <div class="chk"><input type="checkbox" name="cf_avg_expense">資金繰りに「いつもの経費（直近3か月の平均）」も出金として入れる</div>
+        <div class="hint">口座番号・暗証番号・パスワードは入れないでください（どこにも保存しません）</div>
+      </div>
+
+      <div class="card" id="s-mail"><h2>仕事用のメール</h2>
+        <div class="hint">連絡先の画面の「メール」ボタンで、ここのメールソフトが開きます（宛先・件名・本文が入った状態）。送信ボタンを押すのは社長です。パスワードは入れません。</div>
+        <div class="row"><div><label>仕事用のメールアドレス</label><input name="work_email" type="email" placeholder="例：info@example.co.jp"></div>
+          <div><label>使っているメール</label><select name="mail_client"><option value="gmail">Gmail（Google Workspace）</option><option value="outlook">Outlook（Microsoft 365）</option><option value="mailto">パソコンのメールソフト（Outlook・Thunderbird など）</option></select></div></div>
+        <label>署名（メールの最後に入れる）</label><textarea name="mail_signature" placeholder="株式会社○○&#10;山田 太郎&#10;電話 000-0000-0000"></textarea>
+        <div class="hint">Gmail でアカウントが2つ以上あるときは、上のアドレスのアカウントで開きます。</div>
+      </div>
+
+      <div class="card" id="s-ai"><h2>AIへの任せ方</h2>
+        <div class="hint">チェックしたものは「聞かずにやってよい」。外したものは、必ず社長に聞いてから行います。</div>
+        <div class="chk"><input type="checkbox" name="ok_intake">受付箱の書類の仕分けと台帳への記入</div>
+        <div class="chk"><input type="checkbox" name="ok_drafts">請求書・見積書・返信メールの下書き（送るのは人）</div>
+        <div class="chk"><input type="checkbox" name="ok_check">毎朝の期限と入金の確認</div>
+        <div class="chk"><input type="checkbox" name="ok_research">同業の動きの調査（インターネットの公開情報だけ）</div>
+        <div class="chk"><input type="checkbox" name="ok_pdca_do">社長がOKした対策の実行</div>
+        <div class="chk"><input type="checkbox" disabled>請求書・メールを外に送る（いつも社長が送る・変えられません）</div>
+        <div class="chk"><input type="checkbox" disabled>ファイルを消す・お金を動かす（いつも聞く・変えられません）</div>
+      </div>
+
+      <div class="card" id="s-notice"><h2>お知らせ</h2>
+        <div class="row"><div><label>期限を何日前から知らせる</label><select name="notice_days"><option>7</option><option>3</option><option>14</option><option>30</option></select></div>
+          <div><label>入金が何日遅れたら知らせる</label><select name="late_days"><option>1</option><option>3</option><option>7</option></select></div>
+          <div><label>毎朝の確認の時刻</label><input name="morning_time" type="time"></div>
+          <div><label>毎日の議事録を書く時刻</label><select name="minutes_hour"><option value="18">18時</option><option value="17">17時</option><option value="19">19時</option><option value="20">20時</option><option value="21">21時</option></select></div>
+          <div><label>部署が何日止まったら黄色にする</label><select name="idle_days"><option>3</option><option>2</option><option>5</option><option>7</option></select></div></div>
+        <div class="chk"><input type="checkbox" name="auto_update_check">AI本社の新しい版を1日1回確かめ、あれば「判断が必要なこと」で知らせる（OKを押したときだけ、データはそのまま仕組みを新しくします）</div>
+      </div>
+
+      <div class="card" id="s-show"><h2>画面に出すもの</h2>
+        <div class="chk"><input type="checkbox" name="show_strategy">経営戦略とPDCA</div>
+        <div class="chk"><input type="checkbox" name="show_money">お金（使えるお金・入金待ち・売上・利益）</div>
+        <div class="chk"><input type="checkbox" name="show_depts">部署の動き</div>
+        <div class="chk"><input type="checkbox" name="show_peers">同業の動き</div>
+        <div class="chk"><input type="checkbox" name="show_hr">シフトと勤務（人事を使う会社だけ）</div>
+        <label>「判断が必要なこと」を何件まで表に出すか</label><select name="decision_rows"><option>5</option><option>3</option><option>7</option></select>
+      </div>
+
+      <div class="card" id="s-depts"><h2>部署（AIの担当）</h2>
+        <div class="hint">使う部署にチェック。担当の人がいれば名前を書いてください（AIの仕事を確かめる人）。</div>
+        <div class="row">
+          <div class="chk"><input type="checkbox" name="d_jimu">事務（受付・書類）</div><div class="chk"><input type="checkbox" name="d_keiri">経理（入金・経費・締め）</div>
+          <div class="chk"><input type="checkbox" name="d_eigyo">営業（見積・提案・返信）</div><div class="chk"><input type="checkbox" name="d_hasshin">発信（SNS・ホームページ）</div>
+          <div class="chk"><input type="checkbox" name="d_kikaku">企画（分析・同業調査・PDCA）</div><div class="chk"><input type="checkbox" name="d_jinji">人事（シフト・勤務）</div></div>
+        <label>担当の人（1行に1つ：部署,名前）</label><textarea name="dept_people" placeholder="経理,佐藤&#10;営業,田中"></textarea>
+      </div>
+
+      <div class="card" id="s-peers"><h2>同業として見る会社</h2>
+        <div class="hint">AIがホームページやSNSなどの公開情報を見て、新しい動きを知らせます（1行に1社：名前,ホームページ）。空なら、地域と業種からAIが候補を探して提案します。</div>
+        <textarea name="peers" placeholder="A工務店,https://example.com&#10;B建設,https://example.jp"></textarea>
+      </div>
+
+      <div class="bar">
+        <button class="save" type="submit">保存する</button>
+        <button class="sub" type="button" id="connect" hidden>📁 会社フォルダとつなぐ</button>
+        <span class="status" id="status"></span>
+      </div>
+    </form>
+  </main>
+</div>
+
+<!-- 今の設定：AIが 設定.json の中身をここにも写します（フォルダとつながっていないときの表示用） -->
+<script id="settings-data" type="application/json">
+{
+  "company": "○○株式会社", "industry": "", "area": "", "closing_day": "毎月末日", "pay_term": "翌月末日", "tax": "税込で記録",
+  "invoice_no": "年-月-連番（2026-10-001）", "boss_name": "社長",
+  "policy": "", "year_sales": "", "year_profit": "", "fy_start": "4月", "strategy1": "", "strategy2": "", "strategy3": "",
+  "review_cycle": "3か月ごと", "pdca_cycle": "毎月",
+  "work_email": "", "mail_client": "gmail", "mail_signature": "",
+  "accounting": "none", "balance": "", "balance_date": "", "month_sales": "", "fixed_pay": "", "cf_safety": "", "cf_avg_expense": true, "auto_update_check": true,
+  "ok_intake": true, "ok_drafts": true, "ok_check": true, "ok_research": true, "ok_pdca_do": true,
+  "notice_days": "7", "late_days": "1", "morning_time": "07:00", "minutes_hour": "18", "idle_days": "3",
+  "show_strategy": true, "show_money": true, "show_depts": true, "show_peers": true, "show_hr": false, "decision_rows": "5",
+  "d_jimu": true, "d_keiri": true, "d_eigyo": true, "d_hasshin": false, "d_kikaku": true, "d_jinji": false, "dept_people": "",
+  "peers": ""
+}
+</script>
+<script>
+(function () {
+  var f = document.getElementById('f'), st = document.getElementById('status');
+  var say = function (t, ok) { st.textContent = t; st.className = 'status ' + (ok ? 'ok' : 'ng'); };
+  var fill = function (s) { Object.keys(s).forEach(function (k) { var el = f.elements[k]; if (!el) return; if (el.type === 'checkbox') el.checked = !!s[k]; else el.value = s[k] == null ? '' : s[k]; }); };
+  var read = function () { var s = {}; Array.prototype.forEach.call(f.elements, function (el) { if (!el.name) return; s[el.name] = el.type === 'checkbox' ? el.checked : el.value.trim(); });
+    ['year_sales', 'year_profit', 'balance', 'month_sales', 'cf_safety'].forEach(function (k) { s[k] = s[k].replace(/[,，円¥\s]/g, ''); }); return s; };
+  try { fill(JSON.parse(document.getElementById('settings-data').textContent)); } catch (e) {}
+
+  var idb = function (mode, fn) { return new Promise(function (ok, ng) { var r = indexedDB.open('aihonsha', 1); r.onupgradeneeded = function () { r.result.createObjectStore('h'); };
+    r.onsuccess = function () { var tx = r.result.transaction('h', mode); var q = fn(tx.objectStore('h')); tx.oncomplete = function () { ok(q && q.result); }; tx.onerror = ng; }; r.onerror = ng; }); };
+  var getDir = async function (ask) {
+    if (!window.showDirectoryPicker) return null;
+    var h = await idb('readonly', function (s) { return s.get('dir'); }).catch(function () { return null; });
+    if (h && (await h.queryPermission({ mode: 'readwrite' })) === 'granted') return h;
+    if (!ask) return null;
+    if (h && (await h.requestPermission({ mode: 'readwrite' })) === 'granted') return h;
+    h = await window.showDirectoryPicker({ mode: 'readwrite' }); await idb('readwrite', function (s) { return s.put(h, 'dir'); }); return h;
+  };
+  var load = async function (dir) { try { var fh = await dir.getFileHandle('設定.json'); fill(JSON.parse(await (await fh.getFile()).text())); say('会社フォルダの 設定.json を読みました', true); } catch (e) {} };
+  if (window.showDirectoryPicker) {
+    getDir(false).then(function (d) { if (d) load(d); else document.getElementById('connect').hidden = false; });
+    document.getElementById('connect').onclick = function () { getDir(true).then(function (d) { if (d) { document.getElementById('connect').hidden = true; load(d); } }); };
+  }
+  /* 会計ソフトの連携 */
+  var STEPS = {
+    freee: { name: 'freee', links: [['Claude のコネクタ設定を開く', 'https://claude.ai/settings/connectors'], ['freee の開発者向け案内（freee-mcp）', 'https://developer.freee.co.jp/']],
+      steps: ['下の「Claude のコネクタ設定を開く」を押す（Claude のアプリでは：左下の名前 → 設定 → コネクタ）', '一覧から「freee」を探して「追加（連携）」を押す。見つからないときは、freee の案内ページで「freee-mcp」の追加方法を見る',
+        'freee のログイン画面が出たら、社長が自分でログインして「許可」を押す', 'この画面の「✔ つながっているか確かめる」を押す（次にAIが動くとき、数字が取れるか確かめて結果を画面に出します）'] },
+    moneyforward: { name: 'マネーフォワード クラウド会計', links: [['マネーフォワードのMCPの案内', 'https://biz.moneyforward.com/library/71613/'], ['Claude のコネクタ設定を開く', 'https://claude.ai/settings/connectors']],
+      steps: ['「マネーフォワードのMCPの案内」を開き、アプリポータルで AI（MCP）の利用を許可する。権限は「参照（読むだけ）」を選ぶ', '案内に書かれた「MCPのアドレス（URL）」をコピーする',
+        '「Claude のコネクタ設定を開く」→「カスタムコネクタを追加」に、名前（例：マネーフォワード）とコピーしたアドレスを入れて追加する', 'マネーフォワードのログイン画面が出たら、社長が自分でログインして「許可」を押す', 'この画面の「✔ つながっているか確かめる」を押す'] },
+    csv: { name: '弥生・そのほか（CSV）', links: [],
+      steps: ['会計ソフトから次のCSVを書き出す：試算表（今月）・月次推移（12か月）・売掛金の一覧・買掛金と未払金の一覧・口座残高', '会社フォルダの中の「会計データ」フォルダに入れる（ファイル名はそのままでよい）', '週に1回くらい入れ直す', 'この画面の「✔ つながっているか確かめる」を押す（AIがCSVを読めるか確かめます）'] },
+    none: { name: '使わない', links: [], steps: ['会計ソフトを使わないときは、下の「口座残高」を週に1回くらい手で入れてください', '会計ソフトを使うときは、上で選んでから「🔗 連携する」を押してください'] }
+  };
+  var esc = function (s) { return String(s).replace(/[&<>"']/g, function (c) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); };
+  var showSteps = function () { var s = STEPS[f.elements.accounting.value] || STEPS.none, el = document.getElementById('linkSteps');
+    el.innerHTML = '<b>' + esc(s.name) + ' とつなぐ手順</b><ol>' + s.steps.map(function (t) { return '<li>' + esc(t) + '</li>'; }).join('') + '</ol>' +
+      s.links.map(function (l) { return '<a href="' + esc(l[1]) + '" target="_blank" rel="noopener">' + esc(l[0]) + ' ↗</a>'; }).join('　') +
+      '<div class="hint">手順は2026年10月時点です。画面が違うときは、各社の最新の案内に従ってください。くわしくは 30_規程・マニュアル/会計ソフトとつなぐ手順.md</div>';
+    el.hidden = false; };
+  document.getElementById('linkBtn').onclick = function () { showSteps(); var s = STEPS[f.elements.accounting.value]; if (s && s.links.length) window.open(s.links[0][1], '_blank', 'noopener'); };
+  f.elements.accounting.addEventListener('change', function () { if (!document.getElementById('linkSteps').hidden) showSteps(); });
+  document.getElementById('testBtn').onclick = async function () {
+    var acc = f.elements.accounting.value; if (acc === 'none') { say('先に会計ソフトを選んでください', false); return; }
+    var text = '会計ソフト（' + (STEPS[acc] || {}).name + '）とつながっているか確かめて、/money-sync で数字を取って画面を更新して';
+    try {
+      var dir = await getDir(true);
+      if (!dir) { if (navigator.clipboard) await navigator.clipboard.writeText(text); say('文をコピーしました。Claude に貼り付けてください', false); return; }
+      var box = await dir.getDirectoryHandle('箱', { create: true }); var fh = await box.getFileHandle('依頼箱.json', { create: true });
+      var list = []; try { list = JSON.parse(await (await fh.getFile()).text() || '[]'); } catch (e) {}
+      var t = new Date(); list.push({ id: 'r' + t.getTime(), text: text, time: t.toISOString().slice(0, 16).replace('T', ' '), status: '未着手' });
+      var w = await fh.createWritable(); await w.write(JSON.stringify(list, null, 1)); await w.close();
+      say('AIに確かめるよう頼みました。次に動くとき（すぐなら Claude に「進めて」）結果を画面に出します', true);
+    } catch (e) { say('頼めませんでした：「会社フォルダとつなぐ」を押してください', false); }
+  };
+
+  f.addEventListener('submit', async function (ev) {
+    ev.preventDefault();
+    var s = read(); s.saved_at = new Date().toISOString().slice(0, 16).replace('T', ' ');
+    if (/\d{7,}/.test(s.fixed_pay + s.dept_people + s.peers)) { if (!confirm('長い数字が入っています。口座番号などではありませんか？このまま保存しますか？')) return; }
+    try {
+      var dir = await getDir(true);
+      if (!dir) { if (navigator.clipboard) await navigator.clipboard.writeText(JSON.stringify(s, null, 1)); say('このブラウザでは保存できないため、内容をコピーしました。Claude に「設定をこれにして」と貼り付けてください', false); return; }
+      var fh = await dir.getFileHandle('設定.json', { create: true }); var w = await fh.createWritable(); await w.write(JSON.stringify(s, null, 1)); await w.close();
+      say('保存しました（' + s.saved_at + '）。AIが次に動くときから使います', true);
+    } catch (e) { say('保存できませんでした：会社フォルダ（CLAUDE.md がある所）を選んでください', false); }
+  });
+})();
+</script>
+</body>
+</html>
