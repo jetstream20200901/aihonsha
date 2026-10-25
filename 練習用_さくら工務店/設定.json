@@ -51,5 +51,6 @@
  "minutes_hour": "18",
  "cf_safety": "",
  "cf_avg_expense": true,
- "auto_update_check": false
+ "auto_update_check": false,
+ "design": "A"
 }

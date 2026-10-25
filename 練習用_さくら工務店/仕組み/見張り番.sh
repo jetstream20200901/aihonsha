@@ -8,6 +8,7 @@ log() { echo "$(date '+%Y-%m-%d %H:%M') $1" | tee -a "$LOG"; }
 if [ -f "$LOCK" ] && [ -n "$(find "$LOCK" -mmin -120)" ]; then exit 0; fi
 TODAY=$(date +%F); HOUR=$(date +%-H); R=()
 # ===== 新しい版（AIは使わない）：1日1回 GitHub で版を確かめて判断待ちに出す。社長が「OK」を押したら、データはそのまま仕組みだけ新しくする =====
+rm -f "$F/箱/止めて.txt"   # 作業していないときに押された「止める」は消す
 VURL="${AIHONSHA_VERSION_URL:-https://raw.githubusercontent.com/jetstream20200901/aihonsha/main/version.txt}"
 ZURL="${AIHONSHA_ZIP_URL:-https://github.com/jetstream20200901/aihonsha/releases/latest/download/aihonsha.zip}"
 unz() { if command -v ditto >/dev/null; then ditto -x -k "$1" "$2"; elif command -v python3 >/dev/null; then python3 -m zipfile -e "$1" "$2"; else unzip -q "$1" -d "$2"; fi; }   # 日本語のファイル名をこわさずに展開（Mac は ditto）
@@ -76,8 +77,21 @@ else ONLY=$(printf '%s
 ' "${R[@]}" | grep -v '^今日の議事録$' | paste -sd '・' -)
   if [ -n "$ONLY" ]; then P="会社のルール（CLAUDE.md と AI本社の基本ルール）の「毎朝の確認」のうち、次に関係する手順だけを行って：$ONLY。それ以外はしないで、短く終わらせて。"; else P="ほかの手順はしないで、短く終わらせて。"; fi; fi
 [ $MIN = 1 ] && P="$P 最後に /daily-minutes で今日の議事録を書いて。"
-touch "$LOCK"; log "Claude を起こします：$WHY"
-(cd "$F" && claude -p "$P" --permission-mode acceptEdits --allowedTools "Read,Write,Edit,Glob,Grep,WebSearch,WebFetch" > "$H/さいごの作業.txt" 2>&1)
-[ $MORNING = 1 ] && echo "$TODAY" > "$H/朝の確認をした日.txt"
-[ $MIN = 1 ] && echo "$TODAY" > "$H/議事録を書いた日.txt"
-log "終わりました"; rm -f "$LOCK"
+echo "$(date '+%Y-%m-%d %H:%M') $WHY" > "$LOCK"; log "Claude を起こします：$WHY"   # 画面が「AIが作業中：○○」と出すための目印
+EXTRA=(); while IFS= read -r x; do [ -n "$x" ] && [ -d "$x" ] && EXTRA+=(--add-dir "$x"); done < <(perl -MJSON::PP -e 'my $d = eval { local $/; open my $f, "<", $ARGV[0] or die; decode_json(<$f>) } || {}; print join("\n", grep { /\S/ } split /\r?\n/, ($d->{ai_read_dirs} // ""))' "$F/設定.json" 2>/dev/null)   # 設定で許した、会社フォルダの外のフォルダ
+(cd "$F" && exec claude -p "$P" --permission-mode acceptEdits "${EXTRA[@]}" --allowedTools "Read,Write,Edit,Glob,Grep,WebSearch,WebFetch" > "$H/さいごの作業.txt" 2>&1) &
+CPID=$!; STOPPED=0
+while kill -0 "$CPID" 2>/dev/null; do
+  if [ -f "$F/箱/止めて.txt" ]; then   # 社長が画面で「⏹ 止める」を押した
+    pkill -TERM -P "$CPID" 2>/dev/null; kill -TERM "$CPID" 2>/dev/null; STOPPED=1; rm -f "$F/箱/止めて.txt"
+    echo '[]' > "$F/箱/判断箱.json"
+    perl -MJSON::PP -e 'my $p = shift; my $d = eval { local $/; open my $f, "<", $p or die; decode_json(<$f>) } || []; for (@$d) { $_->{status} = "止めた" if ($_->{status} // "") =~ /^(未着手|作業中)$/ } open my $o, ">", $p or die; print $o JSON::PP->new->utf8->pretty->encode($d)' "$F/箱/依頼箱.json" 2>/dev/null
+    [ -f "$F/台帳/部署の記録.csv" ] && echo "$TODAY,秘書室,社長がAIの作業を止めた（$WHY）," >> "$F/台帳/部署の記録.csv"
+    log "社長が止めました：$WHY"; break
+  fi
+  sleep 2
+done
+wait "$CPID" 2>/dev/null
+[ $STOPPED = 0 ] && [ $MORNING = 1 ] && echo "$TODAY" > "$H/朝の確認をした日.txt"
+[ $STOPPED = 0 ] && [ $MIN = 1 ] && echo "$TODAY" > "$H/議事録を書いた日.txt"
+[ $STOPPED = 0 ] && log "終わりました"; rm -f "$LOCK"

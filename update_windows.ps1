@@ -42,7 +42,9 @@ if ((Test-Path $lock) -and (Get-Item $lock).LastWriteTime -gt (Get-Date).AddHour
 New-Item -ItemType File -Path $lock -Force | Out-Null
 
 # 差し替える「仕組み」のファイル。これ以外は、無ければ足すだけ・あれば触らない
-$sysFiles = @('画面\dashboard.html', '画面\settings.html', '画面\contacts.html', '仕組み\見張り番.ps1', '仕組み\見張り番.sh', '仕組み\見張り番を始める.ps1', '仕組み\AI本社の基本ルール.md', '仕組み\バージョン.txt')
+$sysFiles = @('画面\dashboard.html', '画面\settings.html', '画面\contacts.html', '画面\theme.css', '画面\theme.js','仕組み\見張り番.ps1', '仕組み\見張り番.sh', '仕組み\見張り番を始める.ps1', '仕組み\AI本社の基本ルール.md', '仕組み\バージョン.txt')
+$imgRoot = Join-Path $Source '画面\img'
+if (Test-Path $imgRoot) { $sysFiles += @(Get-ChildItem -LiteralPath $imgRoot -File | ForEach-Object { '画面\img\' + $_.Name }) }
 $skillRoot = Join-Path $Source '.claude\skills'
 $sysFiles += @(Get-ChildItem -LiteralPath $skillRoot -Recurse -File -Force | ForEach-Object { '.claude\skills\' + (Rel $skillRoot $_.FullName) })
 $sysSet = @{}; foreach ($f in $sysFiles + @('設定.json', 'CLAUDE.md', '仕組み\アップデートの記録.txt')) { $sysSet[$f.ToLower()] = $true }

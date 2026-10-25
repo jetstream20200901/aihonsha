@@ -4,41 +4,47 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>連絡先｜AI本社</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=Zen+Kaku+Gothic+New:wght@500;700;900&family=M+PLUS+Rounded+1c:wght@500;700;800&family=Inter:wght@500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="theme.css">
 <style>
-  :root { --bg:#f6f5f1; --card:#fff; --ink:#1f2328; --muted:#5f6670; --line:#e3e1da; --accent:#2f6f5e; --accent-soft:#e4f0ec; --ask:#1f5fa8; --ask-soft:#e7f0fb; --warn:#b4232a; --chip:#f0efe9; }
-  @media (prefers-color-scheme: dark) { :root { --bg:#16181b; --card:#1f2226; --ink:#e8e6e1; --muted:#a0a4aa; --line:#33373c; --accent:#6fc2a8; --accent-soft:#1f3a33; --ask:#7fb2f0; --ask-soft:#1c2a3d; --warn:#ff7b80; --chip:#2a2d31; } }
-  * { box-sizing:border-box; } body { margin:0; background:var(--bg); color:var(--ink); font-family:"Hiragino Sans","Yu Gothic UI","Meiryo",system-ui,sans-serif; line-height:1.55; }
-  a { color:var(--ask); text-decoration:none; } button { font-family:inherit; cursor:pointer; }
-  .wrap { padding:14px 20px 40px; max-width:1700px; margin:0 auto; }
-  header { display:flex; flex-wrap:wrap; align-items:center; gap:10px 14px; margin-bottom:12px; } h1 { font-size:22px; margin:0; }
-  .btn { border:1px solid var(--line); background:var(--card); color:var(--ink); border-radius:9px; padding:6px 12px; font-size:13.5px; white-space:nowrap; }
-  .btn.g { background:var(--accent); color:#fff; border-color:var(--accent); } .btn.b { background:var(--ask); color:#fff; border-color:var(--ask); } .btn.s { padding:2px 9px; font-size:12px; }
-  .tools { display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-bottom:10px; }
-  .tabs button { border:1px solid var(--line); background:var(--card); color:var(--ink); border-radius:20px; padding:4px 12px; font-size:13px; } .tabs button.on { background:var(--ink); color:var(--card); }
-  input, select, textarea { padding:7px 10px; border:1px solid var(--line); border-radius:8px; font-size:14px; font-family:inherit; background:var(--card); color:var(--ink); width:100%; }
-  #q { width:260px; }
-  .grid { display:grid; grid-template-columns:2fr 1fr; gap:12px; align-items:start; }
-  .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:12px 14px; min-width:0; } h2 { font-size:15px; margin:0 0 8px; }
-  table { width:100%; border-collapse:collapse; font-size:13.5px; } th { text-align:left; color:var(--muted); font-weight:500; font-size:12px; border-bottom:1px solid var(--line); padding:4px 6px; }
-  td { border-bottom:1px solid var(--line); padding:6px; vertical-align:top; } td .sub { color:var(--muted); font-size:12px; }
-  .kind { font-size:11px; padding:0 7px; border-radius:6px; color:#fff; white-space:nowrap; } .k-取引先 { background:#2f6f5e; } .k-銀行 { background:#1f5fa8; } .k-収入元 { background:#9a6700; } .k-その他 { background:#6b7280; }
-  .acts { display:flex; flex-wrap:wrap; gap:4px; }
-  .panel { border:2px solid var(--accent); border-radius:12px; background:var(--card); padding:12px 14px; margin-bottom:12px; }
-  .row { display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:6px 12px; } label { font-size:12.5px; color:var(--muted); display:block; margin-top:6px; }
-  .hint { font-size:12px; color:var(--muted); } .empty { color:var(--muted); font-size:13px; padding:8px 0; }
-  .toast { position:fixed; left:50%; bottom:18px; transform:translateX(-50%); background:#333; color:#fff; padding:8px 16px; border-radius:10px; font-size:14px; display:none; z-index:9; }
-  ul { margin:0; padding:0; list-style:none; } li.dr { border-bottom:1px solid var(--line); padding:7px 0; font-size:13.5px; } li.dr:last-child { border-bottom:0; }
+  .page-head { display:flex; align-items:center; gap:12px 16px; margin-bottom:16px; flex-wrap:wrap; }
+  .page-head h1 { margin:0; font-family:var(--head); font-size:24px; font-weight:900; display:flex; gap:10px; align-items:center; }
+  .page-head h1 img { width:30px; height:30px; border-radius:8px; }
+  label { display:block; font-size:13px; color:var(--muted); margin:12px 0 4px; }
+  input, select, textarea { width:100%; padding:9px 12px; border:1px solid var(--line); border-radius:10px; font-size:14.5px; font-family:inherit; background:var(--card); color:var(--ink); }
+  .B input, .B select, .B textarea { background:#0F131B; }
+  input:focus, select:focus, textarea:focus { outline:2px solid var(--acc); outline-offset:-1px; }
+  .hint { font-size:12px; color:var(--muted); }
+  .btn { border:1px solid var(--line); background:var(--card); color:var(--ink); border-radius:10px; padding:8px 14px; font-size:13.5px; font-weight:700; white-space:nowrap; }
+  .btn.g { background:var(--acc); color:var(--acc-ink); border-color:var(--acc); } .btn.b { background:var(--soft2); color:var(--acc); border-color:transparent; } .btn.s { padding:4px 10px; font-size:12px; border-radius:8px; }
+  .C .btn { border-radius:99px; }
+  .tools { display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-bottom:16px; }
+  .tabs { display:flex; gap:6px; flex-wrap:wrap; } .tabs button { border:1px solid var(--line); background:var(--card); color:var(--ink); border-radius:99px; padding:6px 14px; font-size:13px; }
+  .tabs button.on { background:var(--side-on); color:var(--side-on-ink); border-color:var(--side-on); }
+  .A .tabs button.on { background:var(--acc); color:#fff; border-color:var(--acc); }
+  #q { width:280px; margin-left:auto; }
+  .grid { display:grid; grid-template-columns:2fr 1fr; gap:18px; align-items:start; }
+  td .sub { color:var(--muted); font-size:12px; }
+  .kind { font-size:11px; font-weight:700; padding:2px 9px; border-radius:99px; white-space:nowrap; }
+  .k-取引先 { background:var(--okbg); color:var(--ok); } .k-銀行 { background:var(--soft2); color:var(--acc); } .k-収入元 { background:var(--ambbg); color:var(--amb); } .k-その他 { background:var(--soft); color:var(--muted); }
+  .acts { display:flex; flex-wrap:wrap; gap:6px; }
+  .panel { border:2px solid var(--acc); border-radius:var(--r); background:var(--card); padding:18px 20px; margin-bottom:16px; box-shadow:var(--shadow); }
+  .panel h2 { font-family:var(--head); font-size:16px; margin:0 0 8px; }
+  .row { display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:6px 14px; } label { margin-top:8px; font-size:12.5px; }
+  .empty { color:var(--muted); font-size:13px; padding:8px 0; }
+  li.dr { border-bottom:1px solid var(--line); padding:10px 0; font-size:13.5px; } li.dr:last-child { border-bottom:0; }
   @media (max-width:1100px) { .grid { grid-template-columns:1fr; } }
-  @media (max-width:700px) { #q { width:100%; } thead { display:none; } tr { display:block; border-bottom:1px solid var(--line); padding:6px 0; } td { display:block; border:0; padding:2px 0; } }
+  @media (max-width:700px) { #q { width:100%; margin-left:0; } thead { display:none; } tr { display:block; border-bottom:1px solid var(--line); padding:8px 0; } td { display:block; border:0; padding:2px 0; } }
 </style>
 </head>
-<body>
+<body data-page="contacts" class="A">
 <div class="wrap">
-  <header>
-    <h1>📇 連絡先</h1><a href="dashboard.html">← 今日の会社</a>
+  <header class="page-head">
+    <h1><img src="img/contacts.png" alt="">連絡先</h1>
     <span class="hint" id="mailInfo"></span>
     <span style="margin-left:auto"></span>
-    <button class="btn" id="connectBtn" hidden>📁 会社フォルダとつなぐ</button>
+    <button class="connect" id="connectBtn" hidden>📁 会社フォルダとつなぐ</button>
   </header>
 
   <div class="tools">
@@ -98,8 +104,8 @@
   <div class="grid">
     <div class="card"><h2 id="listTitle">連絡先</h2><div id="list"></div></div>
     <div>
-      <div class="card" style="margin-bottom:12px"><h2>✉ メールの下書き（AIが作ったもの）</h2><ul id="drafts"></ul></div>
-      <div class="card"><h2>📝 登録の案（AIが名刺・ネットから作ったもの）</h2><div class="hint">今日の会社の「① 判断が必要なこと」で OK を押すと登録されます。</div><ul id="pending"></ul></div>
+      <div class="card" style="margin-bottom:12px"><h2><img class="ic" src="img/minutes.png" alt="">メールの下書き（AIが作ったもの）</h2><ul id="drafts"></ul></div>
+      <div class="card"><h2><img class="ic" src="img/ai.png" alt="">登録の案（AIが名刺・ネットから作ったもの）</h2><div class="hint">今日の会社の「判断が必要なこと」で OK を押すと登録されます。</div><ul id="pending"></ul></div>
     </div>
   </div>
 </div>
@@ -223,5 +229,6 @@
   if (location.hash === '#add') open('manual');
 })();
 </script>
+<script src="theme.js"></script>
 </body>
 </html>

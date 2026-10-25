@@ -4,123 +4,85 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>今日の会社</title>
-<style>
-  :root { --bg:#f6f5f1; --card:#fff; --ink:#1f2328; --muted:#5f6670; --line:#e3e1da; --accent:#2f6f5e; --accent-soft:#e4f0ec;
-    --warn:#b4232a; --soon:#9a6700; --ask:#1f5fa8; --ask-soft:#e7f0fb; --chip:#f0efe9; }
-  @media (prefers-color-scheme: dark) {
-    :root { --bg:#16181b; --card:#1f2226; --ink:#e8e6e1; --muted:#a0a4aa; --line:#33373c; --accent:#6fc2a8; --accent-soft:#1f3a33;
-      --warn:#ff7b80; --soon:#e3b341; --ask:#7fb2f0; --ask-soft:#1c2a3d; --chip:#2a2d31; }
-  }
-  * { box-sizing:border-box; }
-  body { margin:0; background:var(--bg); color:var(--ink); font-family:"Hiragino Sans","Yu Gothic UI","Meiryo",system-ui,sans-serif; line-height:1.5; }
-  a { color:var(--ask); text-decoration:none; } button { font-family:inherit; cursor:pointer; }
-  .wrap { padding:14px 20px 24px; }
-  header { display:flex; align-items:center; gap:10px 14px; margin-bottom:10px; flex-wrap:wrap; }
-  h1 { font-size:22px; margin:0; white-space:nowrap; } .muted { color:var(--muted); font-size:12.5px; }
-  nav { margin-left:auto; display:flex; flex-wrap:wrap; gap:6px; }
-  nav a { padding:5px 12px; border:1px solid var(--line); border-radius:20px; background:var(--card); color:var(--ink); font-size:13px; }
-  nav a.on { border-color:var(--ask); color:var(--ask); font-weight:700; }
-  .req { display:flex; gap:10px; align-items:center; flex:1 1 520px; max-width:900px; border:2px solid var(--accent); border-radius:12px; background:var(--card); padding:6px 8px 6px 14px; }
-  .req input { flex:1; border:0; outline:0; font-size:14px; background:transparent; color:var(--ink); min-width:0; }
-  .go { background:var(--accent); color:#fff; border:0; border-radius:9px; padding:6px 16px; font-size:14px; white-space:nowrap; }
-  .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:12px 14px; min-width:0; }
-  h2 { font-size:15px; margin:0 0 6px; display:flex; align-items:center; gap:8px; } h2 .more { margin-left:auto; font-size:12px; font-weight:400; }
-  .g3 { display:grid; grid-template-columns:1.25fr 1.25fr 1fr; gap:12px; margin-bottom:12px; }
-  .ask { border:2px solid var(--ask); background:var(--ask-soft); } .ask h2 { color:var(--ask); }
-  ul { margin:0; padding:0; list-style:none; } li { padding:5px 0; border-bottom:1px solid var(--line); display:flex; gap:8px; align-items:center; font-size:13.5px; } li:last-child { border-bottom:0; }
-  .tag { font-size:11px; padding:0 6px; border-radius:6px; color:#fff; white-space:nowrap; background:var(--ask); }
-  .t-over { background:var(--warn); } .t-soon { background:var(--soon); } .t-ok { background:var(--accent); } .t-money { background:var(--warn); }
-  .b { font-size:11.5px; border:1px solid var(--line); border-radius:7px; padding:0 8px; background:var(--card); color:var(--ink); white-space:nowrap; }
-  .b.g { background:var(--accent); color:#fff; border-color:var(--accent); } .bs { margin-left:auto; display:flex; gap:4px; } .done { color:var(--muted); font-size:12px; margin-left:auto; }
-  .bar { height:9px; background:var(--chip); border-radius:6px; overflow:hidden; } .bar i { display:block; height:100%; background:var(--accent); } .bar i.w { background:var(--soon); }
-  .st3 { display:grid; gap:8px; } .sg { border:1px solid var(--line); border-radius:10px; padding:7px 10px; font-size:13px; } .sg .n { font-weight:700; }
-  .cycle { display:flex; gap:4px; margin:6px 0; } .st { flex:1; text-align:center; font-size:13px; font-weight:700; padding:5px 3px; border-radius:8px; background:var(--chip); color:var(--muted); line-height:1.3; }
-  .st small { font-weight:400; font-size:10.5px; display:block; } .st.now { background:var(--ask); color:#fff; } .st.late { background:var(--warn); color:#fff; }
-  .plan { border-left:4px solid var(--ask); background:var(--ask-soft); padding:6px 9px; border-radius:6px; font-size:13px; margin-top:6px; }
-  .depts { display:grid; grid-template-columns:repeat(3,1fr); gap:7px; } .dp { border:1px solid var(--line); border-radius:9px; padding:6px 9px; font-size:12.5px; } .dp .n { font-weight:700; font-size:13.5px; }
-  .dot { display:inline-block; width:9px; height:9px; border-radius:50%; margin-right:5px; } .dg { background:#2f9e5e; } .dy { background:#e0a400; } .dr { background:var(--warn); }
-  .kp { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:8px; } .k { border:1px solid var(--line); border-radius:10px; padding:7px 10px; }
-  .k .l { font-size:12px; color:var(--muted); } .k .v { font-size:22px; font-weight:700; font-variant-numeric:tabular-nums; } .k .s { font-size:11.5px; }
-  .down { color:var(--warn); } .up { color:var(--accent); }
-  .chart { display:flex; align-items:flex-end; gap:4px; height:52px; } .chart.big i { transform:scaleY(4); transform-origin:bottom; } .chartlabel { font-size:11.5px; color:var(--muted); margin:2px 0 2px; } .cb { flex:1; display:flex; flex-direction:column; justify-content:flex-end; align-items:center; height:100%; min-width:0; }
-  .cb i { width:100%; background:var(--accent); border-radius:3px 3px 0 0; min-height:2px; } .cb.cur i { background:var(--ink); } .cb span { font-size:9px; color:var(--muted); }
-  .empty { color:var(--muted); font-size:13px; padding:6px 0; }
-  table { width:100%; border-collapse:collapse; font-size:13.5px; } th { text-align:left; color:var(--muted); font-weight:500; font-size:12px; border-bottom:1px solid var(--line); padding:4px 6px; }
-  td { border-bottom:1px solid var(--line); padding:5px 6px; vertical-align:top; } td.num { text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap; }
-  .view { display:none; } .view.on { display:block; }
-  .mlay { display:grid; grid-template-columns:230px 1fr; gap:14px; } .mlist { list-style:none; padding:0; margin:0; }
-  .mlist li { padding:7px 9px; border-radius:6px; cursor:pointer; display:flex; justify-content:space-between; gap:6px; font-size:13.5px; } .mlist li:hover, .mlist li.sel { background:var(--ask-soft); }
-  .md { font-size:14px; line-height:1.7; } .md h1 { font-size:18px; margin:0 0 6px; } .md h2 { font-size:15px; margin:12px 0 4px; } .md h3 { font-size:14px; margin:8px 0 2px; } .md ul { margin:2px 0; padding-left:20px; }
-  .mtop { font-size:13.5px; margin-top:4px; }
-  .cf { display:grid; grid-template-columns:repeat(4,1fr); gap:6px; } .cf div { background:var(--soft, #f4f3ee); border-radius:6px; padding:4px 6px; font-size:12px; } .cf b { display:block; font-size:14px; }
-  .cf .red { background:#fde2e1; color:#a1201b; } .cf .yel { background:#fff3cd; color:#7a5b00; } .cfwarn { font-size:12.5px; margin-top:4px; }
-  .cfadd { display:flex; flex-wrap:wrap; gap:6px; align-items:center; margin:8px 0; } .cfadd input, .cfadd select { padding:5px 7px; border:1px solid #ccc; border-radius:6px; font-size:13px; }
-  @media (max-width:1000px) { .mlay { grid-template-columns:1fr; } }
-  .toast { position:fixed; left:50%; bottom:18px; transform:translateX(-50%); background:#333; color:#fff; padding:8px 16px; border-radius:10px; font-size:14px; display:none; z-index:9; }
-  .connect { background:var(--soon); color:#fff; border:0; border-radius:9px; padding:5px 12px; font-size:12.5px; }
-  @media (min-width:1700px) { .wrap { zoom:1.16; } }
-  @media (max-width:1500px) { .g3 { grid-template-columns:1fr 1fr; } .g3 > .card:nth-child(3) { grid-column:1/-1; } .g3 > .card:nth-child(3) .kp { grid-template-columns:repeat(4,1fr); } }
-  @media (max-width:1000px) {
-    .wrap { padding:10px 12px; } .g3 { grid-template-columns:1fr; } .g3 > .card:nth-child(3) .kp { grid-template-columns:1fr 1fr; }
-    header > div:first-child { flex:1 1 100%; } .req { flex:1 1 100%; max-width:none; } nav { margin-left:0; }
-    li { flex-wrap:wrap; } .bs, .done { margin-left:0; width:100%; justify-content:flex-end; text-align:right; }
-    .cycle { display:grid; grid-template-columns:1fr 1fr; } .depts { grid-template-columns:1fr 1fr; }
-  }
-  @media (max-width:560px) { .kp { grid-template-columns:1fr !important; } .depts { grid-template-columns:1fr; } h1 { font-size:19px; } .k .v { font-size:20px; } .req .muted { display:none; } }
-</style>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=Zen+Kaku+Gothic+New:wght@500;700;900&family=M+PLUS+Rounded+1c:wght@500;700;800&family=Inter:wght@500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="theme.css">
 </head>
-<body>
-<div class="wrap">
-  <header>
-    <div><h1 id="title">今日の会社</h1><div class="muted" id="updated"></div></div>
-    <form class="req" id="reqForm">
-      <b style="white-space:nowrap">💬 AIに頼む</b>
-      <input id="reqText" placeholder="例：山田商事に入金の催促メールを書いて／来月のシフトを作って">
-      <button class="go" type="submit">頼む</button>
-      <a class="muted" href="#requests" target="_blank" id="reqCount" style="white-space:nowrap"></a>
-    </form>
+<body class="A">
+<div class="app">
+  <aside class="side">
+    <div class="brand"><div class="logo">AI</div><span>AI本社</span></div>
     <nav id="nav">
-      <a href="#strategy" target="_blank">🧭 戦略とPDCA</a><a href="#depts" target="_blank">🏢 部署</a><a href="#numbers" target="_blank">📊 数字</a><a href="#cash" target="_blank">💴 資金繰り</a>
-      <a href="#minutes" target="_blank" id="navMin">📝 議事録</a><a href="#docs" target="_blank">📄 書類</a><a href="#todo" target="_blank">✅ やること</a><a href="contacts.html" target="_blank">📇 連絡先</a><a href="settings.html" target="_blank">⚙️ 設定</a>
-      <button class="connect" id="connectBtn" type="button" hidden>📁 会社フォルダとつなぐ</button>
+      <a href="#home" data-v="home"><img class="ic" src="img/home.png" alt=""><span class="lb">ホーム</span></a>
+      <a href="#ai" data-v="ai"><img class="ic" src="img/ai.png" alt=""><span class="lb">AIの動き</span><span class="badge live" id="navAi"></span></a>
+      <a href="#decisions" data-v="decisions"><img class="ic" src="img/decision.png" alt=""><span class="lb">判断すること</span><span class="badge" id="navDec"></span></a>
+      <a href="#strategy" data-v="strategy"><img class="ic" src="img/strategy.png" alt=""><span class="lb">戦略とPDCA</span></a>
+      <a href="#depts" data-v="depts"><img class="ic" src="img/depts.png" alt=""><span class="lb">部署</span></a>
+      <a href="#numbers" data-v="numbers"><img class="ic" src="img/money.png" alt=""><span class="lb">数字</span></a>
+      <a href="#cash" data-v="cash"><img class="ic" src="img/cash.png" alt=""><span class="lb">資金繰り</span></a>
+      <a href="#minutes" data-v="minutes"><img class="ic" src="img/minutes.png" alt=""><span class="lb">議事録</span><span class="badge" id="navMin"></span></a>
+      <a href="#docs" data-v="docs"><img class="ic" src="img/docs.png" alt=""><span class="lb">書類</span></a>
+      <a href="#todo" data-v="todo"><img class="ic" src="img/todo.png" alt=""><span class="lb">やること</span></a>
+      <a href="#requests" data-v="requests"><img class="ic" src="img/ai.png" alt=""><span class="lb">頼んだこと</span></a>
+      <a href="contacts.html"><img class="ic" src="img/contacts.png" alt=""><span class="lb">連絡先</span></a>
+      <a href="settings.html"><img class="ic" src="img/settings.png" alt=""><span class="lb">設定</span></a>
     </nav>
-  </header>
+    <div class="sidefoot">
+      <div class="design"><span>デザイン</span><button type="button" data-design="A" title="静かな経営室">A</button><button type="button" data-design="B" title="コマンドセンター">B</button><button type="button" data-design="C" title="AI社員チーム">C</button></div>
+    </div>
+  </aside>
+  <main class="main">
+    <div class="top">
+      <div class="hello"><h1 id="title">今日の会社</h1><div id="updated"></div></div>
+      <button class="connect" id="connectBtn" type="button" hidden>📁 会社フォルダとつなぐ</button>
+      <form class="req" id="reqForm">
+        <img class="ic" src="img/ai.png" alt="">
+        <input id="reqText" placeholder="AI社長室に頼む（話すなら 🎤）例：今週の投稿案を作って／山田商事に入金の催促メールを書いて">
+        <button class="mic" id="micBtn" type="button" title="声で入力（もう一度押すと止まる）">🎤</button>
+        <button class="go" type="submit">頼む</button>
+        <a href="#requests" id="reqCount"></a>
+      </form>
+    </div>
+    <div id="backBar" hidden><a href="#home" class="back"><img class="ic" src="img/home.png" alt="">会社の画面（ホーム）にもどる</a></div>
 
-  <!-- ホーム -->
-  <div class="view" id="v-home">
-    <section class="g3">
-      <div class="card ask"><h2 id="decTitle">① あなたの判断が必要なこと</h2><ul id="decisions"></ul></div>
-      <div class="card"><h2>② 経営戦略<span class="more"><a href="#strategy" target="_blank">中身・同業比較・計画 →</a></span></h2><div id="strategy"></div></div>
-      <div class="card"><h2>⑤ お金<span class="more"><a href="#numbers" target="_blank">くわしい数字 →</a></span><span class="muted" style="font-weight:400" id="moneySrc"></span></h2><div class="kp" id="money"></div><div class="chartlabel">売上の流れ（12か月）</div><div class="chart" id="chart"></div><div class="chartlabel" style="margin-top:6px">資金繰り（月末の残高の見込み）<span class="more"><a href="#cash" target="_blank">中身 →</a></span></div><div id="cf"></div></div>
-    </section>
-    <section class="g3">
-      <div class="card"><h2 id="pdcaTitle">③ PDCA<span class="more"><a href="#strategy" target="_blank">これまでの周 →</a></span></h2><div id="pdca"></div></div>
-      <div class="card"><h2>④ 部署の動き<span class="more"><a href="#depts" target="_blank">部署ごと →</a></span></h2><div class="depts" id="depts"></div>
-        <div class="muted" style="margin-top:6px"><span class="dot dg"></span>動いている <span class="dot dy"></span>3日以上止まる <span class="dot dr"></span>1週間以上止まる</div>
-        <h2 style="margin-top:10px">AIがきのうやったこと</h2><ul id="ailog"></ul><div id="minutesHome"></div></div>
-      <div class="card"><h2>⑥ 7日以内の期限・過ぎたもの<span class="more"><a href="#todo" target="_blank">30日分 →</a></span></h2><ul id="deadlines"></ul>
-        <h2 style="margin-top:10px">⑦ 同業の動き<span class="more"><a href="#strategy" target="_blank">一覧 →</a></span></h2><ul id="peers"></ul></div>
-    </section>
-  </div>
+    <!-- ホーム -->
+    <div class="view" id="v-home"><div class="home">
+      <div class="card aip a-ai" id="aiPanel"></div>
+      <div class="card hero a-hero"><img src="img/ai.png" alt=""><div style="flex:1;min-width:0"><b class="t">AI社長室から、きょうのひとこと</b><p id="summary"></p><div class="next"><b class="t">あなたが次にすること</b><ol id="nextList"></ol></div></div></div>
+      <div class="card a-kpi"><h2 class="only-c"><img class="ic" src="img/money.png" alt="">お金<span class="more"><a href="#numbers">くわしい数字 →</a></span></h2><div class="kpis" id="money"></div></div>
+      <div class="card a-dec"><h2 id="decTitle"></h2><ul class="dec" id="decisions"></ul></div>
+      <div class="card a-feed"><h2><img class="ic" src="img/ai.png" alt="">AIがやったこと<span class="more"><a href="#depts">記録 →</a></span></h2><ul class="feed" id="ailog"></ul></div>
+      <div class="card a-dept"><h2><img class="ic" src="img/depts.png" alt="">部署の動き（AI社員）<span class="more"><a href="#depts">くわしく →</a></span></h2><div class="depts" id="depts"></div>
+        <div class="legend"><span><span class="dot dg"></span> 動いている</span><span><span class="dot dy"></span> 3日以上止まる</span><span><span class="dot dr"></span> 1週間以上止まる</span></div></div>
+      <div class="card a-cash"><h2><img class="ic" src="img/money.png" alt="">売上の流れと資金繰り<span class="more"><a href="#cash">資金繰り →</a></span></h2><div class="muted" id="moneySrc"></div><div class="chart" id="chart"></div><div id="cf"></div></div>
+      <div class="card a-pdca"><h2 id="pdcaTitle"><img class="ic" src="img/pdca.png" alt="">戦略とPDCA</h2><div id="pdca"></div><div id="strategy" style="margin-top:12px"></div></div>
+      <div class="card a-dl"><h2><img class="ic" src="img/deadline.png" alt="">7日以内の期限・過ぎたもの<span class="more"><a href="#todo">30日分 →</a></span></h2><ul class="dl" id="deadlines"></ul>
+        <h2 style="margin-top:16px"><img class="ic" src="img/peers.png" alt="">同業の動き<span class="more"><a href="#strategy">一覧 →</a></span></h2><ul class="dl" id="peers"></ul></div>
+      <div class="card a-min" id="minutesHome"></div>
+    </div></div>
 
-  <!-- 別タブで開く画面 -->
-  <div class="view" id="v-strategy"><div class="card"><h2>🧭 経営戦略とPDCA</h2><div id="strategyFull"></div></div></div>
-  <div class="view" id="v-depts"><div class="card"><h2>🏢 部署の動き（くわしく）</h2><div id="deptsFull"></div></div></div>
-  <div class="view" id="v-numbers"><div class="card"><h2>📊 くわしい数字</h2><div id="numbersFull"></div></div></div>
-  <div class="view" id="v-cash"><div class="card"><h2>💴 資金繰り（今月の残りと、この先3か月）</h2>
-    <div class="muted">口座の残高に、入金の予定（請求済みで入金期限が来るもの）を足し、出金の予定（決まった支払い・届いた請求書・入出金の予定・いつもの経費）を引いた見込みです。売上の見込み（まだ請求していないもの）は入れていません。</div>
-    <div id="cashFull"></div>
-    <h2 style="margin-top:14px">入出金の予定を足す（税金・賞与・大きな仕入れ・借入など）</h2>
-    <form class="cfadd" id="cfForm"><input type="date" id="cfDate" required><input id="cfText" placeholder="内容（例：法人税の納付）" required style="flex:1;min-width:160px">
-      <select id="cfKind"><option value="出金">出金</option><option value="入金">入金</option></select><input id="cfAmt" inputmode="numeric" placeholder="金額（円）" required style="width:120px"><button class="b g" type="submit">足す</button></form>
-    <div class="muted">台帳/入出金の予定.csv に入ります（AIは使いません）。口座番号などは書かないでください。</div></div></div>
-  <div class="view" id="v-minutes"><div class="card"><h2>📝 毎日の議事録<span class="muted" style="font-weight:400">　AIが毎日夕方に、その日の会社の動きをまとめて 20_議事録/AI本社 に保存します</span></h2>
-    <div class="mlay"><ul class="mlist" id="minutesList"></ul><div id="minutesBody"></div></div></div></div>
-  <div class="view" id="v-docs"><div class="card"><h2>📄 最近入った書類</h2><div id="docsFull"></div></div></div>
-  <div class="view" id="v-todo"><div class="card"><h2>✅ やることと30日以内の期限</h2><div id="todoFull"></div></div></div>
-  <div class="view" id="v-decisions"><div class="card ask"><h2>① 判断が必要なこと（すべて）</h2><ul id="decisionsAll"></ul></div></div>
-  <div class="view" id="v-requests"><div class="card"><h2>💬 頼んだこと</h2><div id="requestsFull"></div></div></div>
+    <!-- 中の画面（同じタブで切り替わる） -->
+    <div class="view" id="v-strategy"><div class="card"><h2><img class="ic" src="img/strategy.png" alt="">経営戦略とPDCA</h2><div id="strategyFull"></div></div></div>
+    <div class="view" id="v-depts"><div class="card"><h2><img class="ic" src="img/depts.png" alt="">部署の動き（くわしく）</h2><div id="deptsFull"></div></div></div>
+    <div class="view" id="v-numbers"><div class="card"><h2><img class="ic" src="img/money.png" alt="">くわしい数字</h2><div id="numbersFull"></div></div></div>
+    <div class="view" id="v-cash"><div class="card"><h2><img class="ic" src="img/cash.png" alt="">資金繰り（今月の残りと、この先3か月）</h2>
+      <div class="muted">口座の残高に、入金の予定（請求済みで入金期限が来るもの）を足し、出金の予定（決まった支払い・届いた請求書・入出金の予定・いつもの経費）を引いた見込みです。売上の見込み（まだ請求していないもの）は入れていません。</div>
+      <div id="cashFull"></div>
+      <h2 style="margin-top:18px">入出金の予定を足す（税金・賞与・大きな仕入れ・借入など）</h2>
+      <form class="cfadd" id="cfForm"><input type="date" id="cfDate" required><input id="cfText" placeholder="内容（例：法人税の納付）" required style="flex:1;min-width:160px">
+        <select id="cfKind"><option value="出金">出金</option><option value="入金">入金</option></select><input id="cfAmt" inputmode="numeric" placeholder="金額（円）" required style="width:120px"><button class="btn ok" type="submit">足す</button></form>
+      <div class="muted">台帳/入出金の予定.csv に入ります（AIは使いません）。口座番号などは書かないでください。</div></div></div>
+    <div class="view" id="v-minutes"><div class="card"><h2><img class="ic" src="img/minutes.png" alt="">毎日の議事録<span class="muted" style="font-weight:400">　AIが毎日夕方に、その日の会社の動きをまとめて 20_議事録/AI本社 に保存します</span></h2>
+      <div class="mlay"><ul class="mlist" id="minutesList"></ul><div id="minutesBody"></div></div></div></div>
+    <div class="view" id="v-docs"><div class="card"><h2><img class="ic" src="img/docs.png" alt="">最近入った書類</h2><div id="docsFull"></div></div></div>
+    <div class="view" id="v-todo"><div class="card"><h2><img class="ic" src="img/todo.png" alt="">やることと30日以内の期限</h2><div id="todoFull"></div></div></div>
+    <div class="view" id="v-decisions"><div class="card"><h2><img class="ic" src="img/decision.png" alt="">判断が必要なこと（すべて）</h2><ul class="dec" id="decisionsAll"></ul></div></div>
+    <div class="view" id="v-ai"><div id="aiFull"></div></div>
+    <div class="view" id="v-dept"><div id="deptView"></div></div>
+    <div class="view" id="v-requests"><div class="card"><h2><img class="ic" src="img/ai.png" alt="">頼んだこと</h2><div id="requestsFull"></div></div></div>
+  </main>
 </div>
+<div class="peek" id="peek" hidden><div class="peekbox"><div class="peekhead"><b id="peekTitle">中身</b><span class="muted" id="peekPath"></span><button class="b" type="button" id="peekClose">閉じる ✕</button></div><div class="md" id="peekBody"></div><div class="peekedit" id="peekEdit" hidden><textarea id="peekText" spellcheck="false"></textarea><div class="bs" style="justify-content:flex-start;margin-top:8px"><button class="btn ok" type="button" id="peekSave">保存する</button><button class="btn later" type="button" id="peekCancel">やめる</button><span class="muted">はじめて直すときは、元の文を「…_元.md」として残します</span></div></div><div class="peekfix" id="peekFix" hidden><div class="req" style="max-width:none;margin:0"><input id="fixText" placeholder="どこをどう直してほしいか（例：3番は今週はやめて、7番を先に）"><button class="mic" id="fixMic" type="button" title="声で入力">🎤</button><button class="go" type="button" id="fixGo">AIに直してもらう</button></div></div><div class="peektools" id="peekTools"><button class="b" type="button" id="peekEditBtn">✏️ 自分で直す</button><button class="b" type="button" id="peekFixBtn">💬 AIに直してもらう</button></div><div class="peekfoot" id="peekFoot"></div></div></div>
 <div class="toast" id="toast"></div>
 
 <!-- データ：/dashboard スキルが、この中だけを書き換えます -->
@@ -159,21 +121,25 @@
   var empty = function (t) { return '<div class="empty">' + (t || 'ありません') + '</div>'; };
   var answered = {}; try { answered = JSON.parse(localStorage.getItem('aihonsha-answered') || '{}'); } catch (e) {}
   /* 毎日の議事録：見出し・箇条書き・太字だけの簡単な表示 */
-  var mdHtml = function (t) { var out = [], inUl = false;
-    var inl = function (x) { return esc(x).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>'); };
-    String(t || '').replace(/\r/g, '').split('\n').forEach(function (l) { var m = l.match(/^(#{1,3})\s+(.*)/), li = l.match(/^\s*[-*]\s+(.*)/);
+  var mdHtml = function (t) { var out = [], inUl = false, inTb = false;
+    var inl = function (x) { return esc(x).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/★/g, '<span class="star">★</span>'); };
+    String(t || '').replace(/\r/g, '').split('\n').forEach(function (l) { var m = l.match(/^(#{1,3})\s+(.*)/), li = l.match(/^\s*[-*]\s+(.*)/), tb = /^\s*\|.*\|\s*$/.test(l);
+      if (!tb && inTb) { out.push('</tbody></table>'); inTb = false; }
+      if (tb) { if (/^\s*\|[\s:|-]+\|\s*$/.test(l)) return; var cells = l.trim().replace(/^\||\|$/g, '').split('|').map(function (c) { return inl(c.trim()); });
+        if (!inTb) { out.push('<table class="mdt"><thead><tr><th>' + cells.join('</th><th>') + '</th></tr></thead><tbody>'); inTb = true; } else out.push('<tr><td>' + cells.join('</td><td>') + '</td></tr>'); return; }
+      var ol = l.match(/^\s*\d+[.．]\s+(.*)/); if (ol && !li) { out.push('<div class="oli">' + inl(l.trim()) + '</div>'); return; }
       if (!li && inUl) { out.push('</ul>'); inUl = false; }
       if (m) out.push('<h' + m[1].length + '>' + inl(m[2]) + '</h' + m[1].length + '>');
       else if (li) { if (!inUl) { out.push('<ul>'); inUl = true; } out.push('<li>' + inl(li[1]) + '</li>'); }
       else if (l.trim() && !/^```/.test(l)) out.push('<div>' + inl(l) + '</div>'); });
-    if (inUl) out.push('</ul>'); return out.join(''); };
+    if (inUl) out.push('</ul>'); if (inTb) out.push('</tbody></table>'); return out.join(''); };
   var oneLine = function (t) { var m = String(t || '').replace(/\r/g, '').match(/##\s*ひとことで\s*\n+([^\n#]+)/); return m ? m[1].replace(/^[-*]\s*/, '').trim() : ''; };
   var selMin = null, lastD = null;
   var renderMinutes = function (d) { lastD = d;
     var mins = d.minutes || [], unread = mins.filter(function (x) { return !x.confirmed; });
-    $('navMin').textContent = '📝 議事録' + (unread.length ? '（未確認' + unread.length + '）' : '');
+    $('navMin').textContent = unread.length || '';
     var top = mins[0];
-    $('minutesHome').innerHTML = '<h2 style="margin-top:10px">📝 毎日の議事録<span class="more"><a href="#minutes" target="_blank">' + (unread.length ? '未確認 ' + unread.length + '件を読む →' : 'これまでの分 →') + '</a></span></h2>' +
+    $('minutesHome').innerHTML = '<h2><img class="ic" src="img/minutes.png" alt="">毎日の議事録' + (unread.length ? ' <span class="tag t-soon">未確認 ' + unread.length + '</span>' : '') + '<span class="more"><a href="#minutes">' + (unread.length ? '未確認 ' + unread.length + '件を読む →' : 'これまでの分 →') + '</a></span></h2>' +
       (top ? '<div class="mtop">' + esc(top.date) + '　' + (top.confirmed ? '<span class="muted">確認済み</span>' : '<b class="down">未確認</b>') + '<br>' + esc(oneLine(top.text) || '（まとめは議事録の中にあります）') + '</div>' : empty('まだありません。毎日夕方にAIが書きます'));
     if (!mins.some(function (x) { return x.date === selMin; })) selMin = (unread[unread.length - 1] || top || {}).date || null;
     $('minutesList').innerHTML = mins.length ? mins.map(function (x) { return '<li data-min="' + esc(x.date) + '" class="' + (x.date === selMin ? 'sel' : '') + '"><span>' + esc(x.date) + '</span>' + (x.confirmed ? '<span class="muted">✔ 確認済み</span>' : '<b class="down">未確認</b>') + '</li>'; }).join('') : '<li class="empty">まだありません</li>';
@@ -188,82 +154,162 @@
   var dtag = function (s) { var n = days(s); if (n === null) return ''; if (n < 0) return '<span class="tag t-over">' + (-n) + '日過ぎ</span>'; if (n === 0) return '<span class="tag t-over">今日</span>';
     return '<span class="tag ' + (n <= 5 ? 't-soon' : 't-ok') + '">あと' + n + '日</span>'; };
 
+  /* デザイン（A・B・C）：設定.json の design（画面のボタンで選んでも入る）→ この画面で最後に選んだもの → A の順 */
+  var design = '';
+  try { design = localStorage.getItem('aihonsha-design') || ''; } catch (e) {}
+  var applyDesign = function (x) { x = /^[ABC]$/.test(x) ? x : 'A'; document.body.className = x;
+    Array.prototype.forEach.call(document.querySelectorAll('[data-design]'), function (b) { b.classList.toggle('on', b.dataset.design === x); }); };
+  applyDesign(d.design || design);
+
   /* 見出し */
   document.title = (d.company || '会社') + '｜今日の会社';
-  $('title').textContent = (d.company || '') + '　今日の会社';
-  $('updated').innerHTML = d._fresh || ((d.updated || '') + ' 時点・AIが更新');
+  var hr = new Date().getHours();
+  $('title').textContent = (hr < 11 ? 'おはようございます' : hr < 18 ? 'こんにちは' : 'おつかれさまです') + '、' + (d.boss || '社長');
+  $('updated').innerHTML = esc(d.company || '') + '　' + (d._fresh || ((d.updated || '') + ' 時点・AIが更新'));
 
-  /* ① 判断 */
-  var decs = (d.decisions || []).filter(function (x) { return !answered[x.id]; });
+  /* 判断 */
+  var decs = (d.decisions || []).filter(function (x) { return d._live || !answered[x.id]; });   /* つながっているときは箱の中身が正しい（取り消しも反映） */
+  var kindIcon = { 'お金': 'money', '対策': 'strategy', '登録': 'contacts', '確認': 'decision' };
   var decRow = function (x) {
-    var kind = x.kind || '確認', cls = kind === 'お金' ? 't-money' : '';
-    var btns = (x.buttons || ['OK', 'やめる', 'あとで']).map(function (b) { return '<button class="b' + (b === 'OK' ? ' g' : '') + '" data-dec="' + esc(x.id) + '" data-ans="' + esc(b) + '">' + esc(b) + '</button>'; }).join('');
-    var link = x.link ? '<a class="b" href="' + esc(x.link) + '" target="_blank">中身</a>' : '';
-    return '<li><span class="tag ' + cls + '">' + esc(kind) + '</span><span>' + esc(x.text) + '</span><span class="bs">' + link + btns + '</span></li>';
+    var kind = x.kind || '確認';
+    var btns = (x.buttons || ['OK', 'あとで', 'やめる']).map(function (b) { return '<button class="btn ' + (b === 'OK' ? 'ok' : b === 'あとで' ? 'later' : 'ghost') + '" data-dec="' + esc(x.id) + '" data-ans="' + esc(b) + '">' + esc(b) + '</button>'; }).join('');
+    var inside = x.link && !/^[a-z]+:|^[\\/]/i.test(x.link);
+    var link = x.link ? (inside ? '<button class="b peekbtn" type="button" data-peek="' + esc(x.link) + '" data-peekdec="' + esc(x.id) + '">📄 中身を見る</button>' : '<a class="b" href="' + esc(x.link) + '" target="_blank">中身 ↗</a>') : '';
+    return '<li><img class="who" src="img/' + (kindIcon[kind] || 'decision') + '.png" alt=""><div><div class="tt">' + esc(x.text) + '</div><div class="sub"><span class="tag' + (kind === 'お金' ? ' t-money' : '') + '">' + esc(kind) + '</span></div></div><div class="bs">' + link + btns + '</div></li>';
   };
-  $('decTitle').innerHTML = '① あなたの判断が必要なこと（全' + decs.length + '件' + (decs.length > (d._rows || 5) ? '・大事な順に' + (d._rows || 5) + '件' : '') + '）' +
-    (decs.length > (d._rows || 5) ? '<span class="more"><a href="#decisions" target="_blank">すべて見る →</a></span>' : '');
-  $('decisions').innerHTML = decs.length ? decs.slice(0, d._rows || 5).map(decRow).join('') : empty('いまはありません。AIが進めています');
+  var rows = d._rows || 5;
+  $('decTitle').innerHTML = '<img class="ic" src="img/decision.png" alt="">あなたの判断が必要なこと' + (decs.length ? ' <span class="tag t-over">' + decs.length + '件</span>' : '') +
+    (decs.length > rows ? '<span class="more"><a href="#decisions">すべて見る →</a></span>' : '');
+  $('decisions').innerHTML = decs.length ? decs.slice(0, rows).map(decRow).join('') : empty('いまはありません。AIが進めています');
   $('decisionsAll').innerHTML = decs.length ? decs.map(decRow).join('') : empty();
+  $('navDec').textContent = decs.length || '';
 
-  /* ② 戦略 */
+  /* 戦略 */
   var sg = d.strategy || {}, items = sg.items || [];
   var sgRow = function (x, i) {
     var p = x.pct != null ? x.pct : 0;
-    return '<div class="sg"><div class="n">戦略' + (i + 1) + '　' + esc(x.name) + ' <span class="muted">' + esc(x.goal || '') + ' → 今 ' + esc(x.now || '') + (x.late ? '（遅れ）' : '') + '</span></div>' +
-      '<div class="bar"><i class="' + (x.late ? 'w' : '') + '" style="width:' + p + '%"></i></div><div class="muted">PDCA：' + esc(x.pdca || 'なし') + '</div></div>';
+    return '<div class="sg"><div class="n">戦略' + (i + 1) + '　' + esc(x.name) + '</div><div class="muted" style="margin:2px 0 6px">' + esc(x.goal || '') + ' → 今 ' + esc(x.now || '') + (x.late ? '（遅れ）' : '') + '</div>' +
+      '<div class="bar"><i class="' + (x.late ? 'w' : '') + '" style="width:' + p + '%"></i></div></div>';
   };
-  $('strategy').innerHTML = (sg.policy || sg.year_goal ? '<div style="font-size:13.5px;margin-bottom:6px"><b>方針：</b>' + esc(sg.policy) + '　<b>年間目標：</b>' + esc(sg.year_goal) + '</div>' : '') +
-    (items.length ? '<div class="st3">' + items.map(sgRow).join('') + '</div>' : empty('まだ決めていません。設定画面の「経営の目標」を入れると、AIが戦略の案を出します')) +
-    (sg.next_review ? '<div class="muted" style="margin-top:6px">次の見直し：' + esc(sg.next_review) + '（AIが分析して案を出し、社長が決めます）</div>' : '');
+  $('strategy').innerHTML = (items.length ? '<div class="st3">' + items.map(sgRow).join('') + '</div>' : empty('戦略はまだです。設定の「経営の目標」を入れると、AIが案を出します')) +
+    (sg.next_review ? '<div class="muted" style="margin-top:8px">次の見直し：' + esc(sg.next_review) + '</div>' : '');
+  var policyHtml = (sg.policy || sg.year_goal ? '<div style="font-size:13.5px;margin-bottom:10px;line-height:1.75"><b>方針：</b>' + esc(sg.policy) + (sg.year_goal ? '<br><b>年間目標：</b>' + esc(sg.year_goal) : '') + '</div>' : '');
 
-  /* ③ PDCA */
+  /* PDCA */
   var pd = d.pdca;
-  var stages = [['P', '計画', '分析・同業調査・対策案→判断'], ['D', '実行', 'AIの部署が実行'], ['C', '評価', '目標と比べる'], ['A', '改善', '続ける／やめる／直す']];
+  var stages = [['P', '計画', '分析・案→判断'], ['D', '実行', 'AIの部署が実行'], ['C', '評価', '目標と比べる'], ['A', '改善', '続ける／直す']];
   if (pd) {
-    $('pdcaTitle').innerHTML = '③ PDCA（' + esc(pd.title) + '）　' + esc(pd.round || 1) + '周目<span class="more"><a href="#strategy" target="_blank">これまでの周 →</a></span>';
+    $('pdcaTitle').innerHTML = '<img class="ic" src="img/pdca.png" alt="">戦略とPDCA<span class="more"><a href="#strategy">中身 →</a></span>';
     var late = (pd.days_in_stage || 0) > 7;
-    $('pdca').innerHTML = (pd.kpi ? '<div style="display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:center;font-size:13.5px"><span>' + esc(pd.kpi.label) + '</span><div class="bar"><i class="w" style="width:' + pct(pd.kpi.now, pd.kpi.target) + '%"></i></div><span>' + esc(pd.kpi.now_text || pd.kpi.now) + '（目標 ' + esc(pd.kpi.target_text || pd.kpi.target) + '）</span></div>' : '') +
-      '<div class="cycle">' + stages.map(function (s) { return '<div class="st' + (s[0] === pd.stage ? (late ? ' late' : ' now') : '') + '">' + s[0] + ' ' + s[1] + '<small>' + s[2] + '</small></div>'; }).join('') + '</div>' +
-      '<div class="muted">' + (pd.prev ? '前の周：' + esc(pd.prev) + '　' : '') + (pd.next_check ? '次の評価 ' + esc(pd.next_check) + '　' : '') + esc(pd.stage) + ' で ' + esc(pd.days_in_stage || 0) + '日目' + (late ? '<b class="down">（止まっています）</b>' : '') + '</div>' +
-      '<div class="plan">' + (pd.issue ? '<b>課題：</b>' + esc(pd.issue) + '<br>' : '') + (pd.peers ? '<b>同業：</b>' + esc(pd.peers) + '<br>' : '') + (pd.proposal ? '<b>提案：</b>' + esc(pd.proposal) : '') + '</div>';
-  } else { $('pdca').innerHTML = empty('まだ始まっていません。戦略が決まると、AIが最初の対策を提案します'); }
+    $('pdca').innerHTML = '<div style="font-size:14px"><b>' + esc(pd.title) + '</b>　<span class="muted">' + esc(pd.round || 1) + '周目・' + esc(pd.stage) + ' で ' + esc(pd.days_in_stage || 0) + '日目' + (late ? '（止まっています）' : '') + '</span></div>' +
+      '<div class="cycle">' + stages.map(function (s) { return '<div class="st' + (s[0] === pd.stage ? (late ? ' late' : ' now') : '') + '">' + s[0] + '<b>' + s[1] + '</b><small>' + s[2] + '</small></div>'; }).join('') + '</div>' +
+      (pd.kpi ? '<div style="display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;font-size:13px"><span>' + esc(pd.kpi.label) + '</span><div class="bar"><i style="width:' + pct(pd.kpi.now, pd.kpi.target) + '%"></i></div><b class="num">' + esc(pd.kpi.now_text || pd.kpi.now) + ' / ' + esc(pd.kpi.target_text || pd.kpi.target) + '</b></div>' : '') +
+      '<div class="plan">' + (pd.issue ? '<b>課題：</b>' + esc(pd.issue) + '<br>' : '') + (pd.proposal ? '<b>いまの対策：</b>' + esc(pd.proposal) + '<br>' : '') + (pd.next_check ? '<b>次の評価：</b>' + esc(pd.next_check) : '') + '</div>';
+  } else { $('pdcaTitle').innerHTML = '<img class="ic" src="img/pdca.png" alt="">戦略とPDCA<span class="more"><a href="#strategy">中身 →</a></span>'; $('pdca').innerHTML = empty('PDCAはまだ始まっていません。戦略が決まると、AIが最初の対策を提案します'); }
 
-  /* ④ 部署 */
-  var deptHtml = function (x) { var n = x.days_idle || 0, c = n >= 7 ? 'dr' : n >= 3 ? 'dy' : 'dg';
-    return '<div class="dp"><div class="n"><span class="dot ' + c + '"></span>' + esc(x.name) + '</div>' + esc(x.last || '記録なし') + '</div>'; };
+  /* 部署（AI社員） */
+  var ROLE = { '事務': '書類と期限の係', '経理': 'お金の係', '営業': '売り場の係', '発信': 'SNSと動画の係', '企画': '戦略の係', '人事': 'シフトと勤務の係' };
+  var avOf = function (name, i) { var K = [[/事務|秘書|総務|人事|受付/, 'a1'], [/経理|会計|財務|お金/, 'a2'], [/営業|販売|売|受託|顧客/, 'a3'], [/発信|SNS|広報|宣伝|動画|YouTube/i, 'a4'], [/企画|社長|経営|戦略|開発|品質/, 'a5']];
+    for (var k = 0; k < K.length; k++) if (K[k][0].test(name)) return K[k][1]; return 'a' + (i % 5 + 1); };
+  var prevAv = '';
+  var deptHtml = function (x, i) { var n = x.days_idle || 0, c = n >= 7 ? 'dr' : n >= 3 ? 'dy' : 'dg', av = avOf(x.name, i), label = /[部室課係所]$/.test(x.name) ? x.name : x.name + '部';
+    if (av === prevAv) av = 'a' + (+av.slice(1) % 5 + 1); prevAv = av;   /* となりの部署と同じキャラにしない */
+    var busy = d.ai && d.ai.working && (d.ai.now_dept ? (d.ai.now_dept === x.name || d.ai.now_dept === label) : (d.ai.to.indexOf(label) >= 0 || d.ai.to.indexOf(x.name) >= 0 || (!d.ai.to.length && i === 0)));
+    var busyText = busy && d.ai.now_doing ? '<div class="next busynow">いま：' + esc(d.ai.now_doing) + '</div>' : '';
+    x._av = av; x._label = label;
+    return '<a href="#dept-' + i + '" class="dp av-' + av + (busy ? ' busy' : '') + '" title="' + esc(label) + 'のくわしい動き">' + (busy ? '<span class="busytag"><i></i>作業中</span>' : '') + '<img src="img/' + av + '.png" alt=""><div class="n"><span class="dot ' + c + '"></span>' + esc(label) + '</div><div class="r">' + esc(x.role || ROLE[x.name] || '') + '</div>' +
+      busyText + '<div class="last">' + esc(x.last || '記録なし') + '</div>' + (x.next ? '<div class="next">次：' + esc(x.next) + '</div>' : '') + '<div class="open">くわしく →</div></a>'; };
+  prevAv = '';
   $('depts').innerHTML = (d.depts || []).length ? d.depts.map(deptHtml).join('') : empty();
-  $('ailog').innerHTML = (d.ai_log || []).length ? d.ai_log.slice(0, 4).map(function (t) { return '<li>' + esc(t) + '</li>'; }).join('') : '<li class="empty">記録なし</li>';
+  $('ailog').innerHTML = (d.ai_log || []).length ? d.ai_log.slice(0, 6).map(function (t) { return '<li><span class="ck">✓</span><span>' + esc(t) + '</span></li>'; }).join('') : '<li class="empty">まだ記録がありません</li>';
 
-  /* ⑤ お金 */
+  /* お金 */
   var m = d.money || {};
   var usable = (m.balance != null && m.pay30 != null) ? m.balance - m.pay30 : null;
   var diff = (m.sales_month || 0) - (m.sales_last || 0);
   var profit = (m.sales_month || 0) - (m.expense_month || 0);
+  var spark = function (pts) { if (!pts || pts.length < 2) return ''; var w = 150, h = 32, mx = Math.max.apply(null, pts), mn = Math.min.apply(null, pts);
+    return '<svg width="100%" height="' + h + '" viewBox="0 0 ' + w + ' ' + h + '" preserveAspectRatio="none"><polyline fill="none" stroke="var(--acc)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" points="' +
+      pts.map(function (v, i) { return (i * (w / (pts.length - 1))).toFixed(1) + ',' + (h - 4 - (v - mn) / ((mx - mn) || 1) * (h - 8)).toFixed(1); }).join(' ') + '"/></svg>'; };
+  var ms = m.monthly_sales || [], vals = ms.map(function (x) { return +x.amount || 0; });
+  var tile = function (icon, l, v, s, sp) { return '<div class="kpi"><div class="l"><img class="ic" src="img/' + icon + '.png" alt="">' + l + '</div><div class="v">' + v + '</div><div class="s">' + s + '</div>' + (sp || '') + '</div>'; };
   $('money').innerHTML =
-    '<div class="k"><div class="l">使えるお金（30日先まで）</div><div class="v">' + yen(usable) + '</div><div class="s">' + (usable == null ? '設定で口座残高を入れると出ます' : '口座 ' + yen(m.balance) + ' − 支払 ' + yen(m.pay30)) + '</div></div>' +
-    '<div class="k"><div class="l">入金待ち</div><div class="v">' + yen(m.receivable) + '</div><div class="s ' + (m.receivable_over_count ? 'down' : '') + '">' + (m.receivable_over_count ? '期限切れ ' + m.receivable_over_count + '件 ' + yen(m.receivable_over_amount) : '期限切れはありません') + '</div></div>' +
-    '<div class="k"><div class="l">今月の売上</div><div class="v">' + yen(m.sales_month) + '</div><div class="s">' + (m.sales_target ? '目標の' + pct(m.sales_month, m.sales_target) + '%・' : '') + '先月比 <span class="' + (diff >= 0 ? 'up' : 'down') + '">' + (diff >= 0 ? '+' : '−') + yen(Math.abs(diff)) + '</span></div></div>' +
-    '<div class="k"><div class="l">今月の利益（見込み）</div><div class="v">' + yen(profit) + '</div><div class="s">経費 ' + yen(m.expense_month) + '</div></div>';
+    tile('cash', '使えるお金（30日先まで）', yen(usable), usable == null ? '設定で口座残高を入れると出ます' : '口座 ' + yen(m.balance) + ' − 支払 ' + yen(m.pay30), d.cash ? spark([d.cash.start].concat(d.cash.months.map(function (x) { return x.end; }))) : '') +
+    tile('money', '今月の売上', yen(m.sales_month), (m.sales_target ? '目標の' + pct(m.sales_month, m.sales_target) + '%・' : '') + '先月比 <span class="' + (diff >= 0 ? 'up' : 'down') + '">' + (diff >= 0 ? '▲ +' : '▼ −') + yen(Math.abs(diff)) + '</span>', vals.some(Boolean) ? spark(vals.slice(-7)) : '') +
+    tile('decision', '入金待ち', yen(m.receivable), m.receivable_over_count ? '<span class="down">● 期限切れ ' + m.receivable_over_count + '件 ' + yen(m.receivable_over_amount) + '</span>' : '期限切れはありません') +
+    tile('strategy', '今月の利益（見込み）', yen(profit), '経費 ' + yen(m.expense_month));
   var srcName = { freee: 'freee', moneyforward: 'マネーフォワード', csv: '会計ソフトのCSV' }[m.source];
   $('moneySrc').textContent = srcName ? srcName + ' から ' + (m.synced_at || '') + ' に取得' : '台帳と設定から計算';
-  var ms = m.monthly_sales || [], vals = ms.map(function (x) { return +x.amount || 0; }), max = Math.max.apply(null, vals.concat([1])), min = Math.min.apply(null, vals.concat([max])), base = min * 0.6;
-  $('chart').innerHTML = ms.length ? ms.map(function (x, i) { return '<div class="cb' + (i === ms.length - 1 ? ' cur' : '') + '" title="' + esc(x.month) + '：' + yen(x.amount) + '"><i style="height:' + Math.round(4 + ((+x.amount || 0) - base) / ((max - base) || 1) * 34) + 'px"></i><span>' + esc(String(x.month).slice(5).replace(/^0/, '')) + '</span></div>'; }).join('') : empty('売上台帳にデータがありません');
+  var bars = function (big) { if (!vals.some(Boolean)) return empty('売上台帳にデータがありません'); var w = 900, h = big ? 260 : 150, bw = w / ms.length, max = Math.max.apply(null, vals) || 1;
+    return '<svg viewBox="0 0 ' + w + ' ' + (h + 22) + '">' + ms.map(function (x, i) { var bh = Math.max(3, vals[i] / max * h);
+      return '<rect x="' + (i * bw + 4) + '" y="' + (h - bh) + '" width="' + (bw - 8) + '" height="' + bh + '" rx="5" fill="var(--acc)" opacity="' + (i === ms.length - 1 ? 1 : .35) + '"><title>' + esc(x.month) + '：' + yen(x.amount) + '</title></rect>' +
+        '<text x="' + (i * bw + bw / 2) + '" y="' + (h + 16) + '" font-size="13" text-anchor="middle" fill="currentColor" opacity=".55">' + (+String(x.month).slice(5)) + '月</text>'; }).join('') + '</svg>'; };
+  $('chart').innerHTML = bars(false);
 
-  /* ⑥⑦ */
+  /* 期限・同業 */
   var dl = d.deadlines || [];
   $('deadlines').innerHTML = dl.length ? dl.map(function (x) { return '<li>' + dtag(x.date) + '<span>' + esc(x.text) + '</span></li>'; }).join('') : '<li class="empty">7日以内の期限はありません</li>';
   $('peers').innerHTML = (d.peers || []).length ? d.peers.slice(0, 3).map(function (x) { return '<li>' + esc(x.text || x) + '</li>'; }).join('') : '<li class="empty">まだ調べていません</li>';
 
+  /* AI社長室のひとこと：数字は台帳から計算したものだけ */
+  var over = dl.filter(function (x) { var n = days(x.date); return n !== null && n < 0; }).length;
+  var lastMin = (d.minutes || [])[0], ml = lastMin ? oneLine(lastMin.text) : '';
+  var sum = [];
+  var ai = d.ai || null;
+  sum.push(decs.length ? '判断していただきたいことが <b>' + decs.length + '件</b> あります。' : 'いま判断していただくことはありません。');
+  if (ai && ai.working) sum.push('<b>いまAIが作業中です</b>（' + esc(ai.now_dept ? ai.now_dept + (ai.now_doing ? '：' + ai.now_doing : '') : ai.why) + '・' + esc(ai.since) + 'から）。止めるときは上の「⏹ 止める」。');
+  else if (ai) sum.push('AIは待機中です' + (ai.last ? '（最後の作業 ' + esc(ai.last.slice(5)) + (ai.lastWhy ? '：' + esc(ai.lastWhy) : '') + '）' : '') + '。' + (ai.waiting ? '頼みごと・返事が ' + ai.waiting + '件 届いているので、10分以内に見張り番がAIを起こします。' : '頼みごとや返事が届くと、10分以内に見張り番がAIを起こします。'));
+  else sum.push('（会社フォルダとつなぐと、AIが動いているかどうかが分かります）');
+  if (over) sum.push('過ぎた期限が <b>' + over + '件</b> あります。');
+  if (m.receivable_over_count) sum.push('期限切れの入金が ' + m.receivable_over_count + '件（' + yen(m.receivable_over_amount) + '）あります。');
+  if (d.cash) sum.push(d.cash.warn ? esc(d.cash.warn) + '。' : '資金は 3か月先まで足りる見込みです。');
+  if (ml) sum.push('きのうの議事録：' + esc(ml));
+  $('summary').innerHTML = sum.join('');
+
+  /* あなた（社長）が次にすること：画面のデータから、社長にしかできないことだけを並べる */
+  var nx = [], unreadMin = (d.minutes || []).filter(function (x) { return !x.confirmed; }).length;
+  if (!$('connectBtn').hidden) nx.push(['#', '「📁 会社フォルダとつなぐ」を押して、会社フォルダを選ぶ（最初に1回だけ）', 'connect']);
+  if (decs.length) nx.push(['#decisions', '「判断が必要なこと」' + decs.length + '件に、OK／あとで で答える']);
+  dl.filter(function (x) { var n = days(x.date); return n !== null && n < 0; }).slice(0, 2).forEach(function (x) { nx.push(['#todo', '過ぎた期限を確かめる：' + x.text]); });
+  (d.todos || []).filter(function (x) { return /オーナー|社長|あなた/.test(x.owner || ''); }).slice(0, 3).forEach(function (x) { nx.push(['#todo', (x.due ? x.due.slice(5) + ' までに：' : '') + x.task]); });
+  if (unreadMin) nx.push(['#minutes', '毎日の議事録' + unreadMin + '件を読んで「確認した」を押す']);
+  if (usable == null) nx.push(['settings.html#s-money', '設定の「お金」に口座残高を入れる（使えるお金と資金繰りが出ます）']);
+  if (!items.length && !sg.policy) nx.push(['settings.html#s-goal', '設定の「経営の目標」を入れる（AIが戦略の案を出します）']);
+  $('nextList').innerHTML = nx.length ? nx.slice(0, 6).map(function (x) { return '<li><a href="' + x[0] + '"' + (x[2] ? ' data-next="' + x[2] + '"' : '') + '>' + esc(x[1]) + '</a></li>'; }).join('')
+    : '<li class="none">いまはありません。頼みたいことがあれば、上の欄に書くか 🎤 で話してください（担当の部署はAI社長室が決めます）</li>';
+
   var tbl = function (heads, rows) { return rows.length ? '<table><thead><tr>' + heads.map(function (h) { return '<th>' + h + '</th>'; }).join('') + '</tr></thead><tbody>' + rows.map(function (r) { return '<tr>' + r.join('') + '</tr>'; }).join('') + '</tbody></table>' : empty(); };
   renderMinutes(d);
+
+  /* AIの動き：いま（作業中か・待機中か）／待っている仕事／次に動く予定／最近の作業 */
+  var A = d.ai;
+  var runRow = function (r) { return '<li><span class="rt num">' + esc(r.start.slice(5)) + (r.end ? '〜' + esc(r.end.slice(11)) : '〜') + '</span><span class="tag ' + (r.result === '終わった' ? 't-ok' : r.result === '止めた' || r.result === '失敗' ? 't-over' : 't-soon') + '">' + (r.result || '作業中') + '</span><span>' + esc(r.why) + '</span></li>'; };
+  if (!A) {
+    $('aiPanel').innerHTML = '<div class="aistate idle"><div class="big">AIの動き</div><div class="muted">「📁 会社フォルダとつなぐ」を押すと、AIがいま仕事をしているか・終わったか・次にいつ動くかが、ここに出ます</div></div>';
+    $('aiFull').innerHTML = '<div class="card">' + empty('会社フォルダとつなぐと出ます') + '</div>'; $('navAi').textContent = '';
+  } else {
+    var who = A.working && A.now_dept ? (d.depts || []).filter(function (x) { return x.name === A.now_dept || (x.name + '部') === A.now_dept; })[0] : null;
+    var state = A.working
+      ? '<div class="aistate busy"><span class="lamp"></span><div><div class="big">いま作業中</div><div class="what">' + esc(A.now_dept ? A.now_dept + (A.now_doing ? '：' + A.now_doing : '') : A.why) + '</div><div class="muted">' + esc(A.since) + 'から・理由：' + esc(A.why) + '</div><button class="b stop" type="button" id="stopBtn2">⏹ 止める</button></div></div>'
+      : '<div class="aistate idle"><span class="lamp"></span><div><div class="big">待機中</div><div class="what">' + (A.waits.length ? '待っている仕事が ' + A.waits.length + '件 あります（10分以内に取りかかります）' : 'いまの仕事は終わっています') + '</div><div class="muted">' + (A.last ? '最後の作業：' + esc(A.last.slice(5)) + (A.lastWhy ? '（' + esc(A.lastWhy) + '）' : '') : 'まだ動いていません') + '</div></div></div>';
+    var waits = A.waits.length ? '<ul class="dl">' + A.waits.slice(0, 4).map(function (w) { return '<li><span class="tag t-soon">待ち</span>' + esc(w.length > 60 ? w.slice(0, 60) + '…' : w) + '</li>'; }).join('') + '</ul>' : '<div class="empty">ありません</div>';
+    var sched = '<ul class="dl">' + A.sched.map(function (s) { return '<li><b>' + esc(s[0]) + '</b><span class="muted">' + esc(s[1]) + '</span></li>'; }).join('') + '</ul>';
+    var runs = A.runs.length ? '<ul class="dl runs">' + A.runs.slice(0, 4).map(runRow).join('') + '</ul>' : '<div class="empty">まだありません</div>';
+    $('aiPanel').innerHTML = '<h2><img class="ic" src="img/ai.png" alt="">AIの動き<span class="more"><a href="#ai">くわしく（作業の記録・AIの報告）→</a></span></h2>' +
+      '<div class="aigrid"><div>' + state + '</div><div><div class="sub2">待っている仕事</div>' + waits + '</div><div><div class="sub2">次にAIが動く予定</div>' + sched + '</div><div><div class="sub2">最近の作業</div>' + runs + '</div></div>';
+    $('navAi').textContent = A.working ? '作業中' : '';
+    $('aiFull').innerHTML = '<div class="card aip">' + $('aiPanel').innerHTML.replace(/<span class="more">.*?<\/span>/, '') + '</div>' +
+      '<div class="dgrid"><div class="card"><h2><img class="ic" src="img/minutes.png" alt="">作業の記録（新しい順）</h2>' + (A.runs.length ? '<ul class="dl runs">' + A.runs.map(runRow).join('') + '</ul>' : empty('まだありません')) + '</div>' +
+      '<div class="card"><h2><img class="ic" src="img/ai.png" alt="">AIのさいごの報告' + (A.report_time ? '<span class="muted" style="font-weight:400">　' + esc(A.report_time) + '</span>' : '') + '</h2><div class="md">' + (A.report ? mdHtml(A.report) : empty('まだありません')) + '</div></div></div>' +
+      '<div class="card"><h2><img class="ic" src="img/depts.png" alt="">きょう部署がしたこと</h2><ul class="feed">' + ((d.dept_log || []).filter(function (r) { return r.date === (d.updated || '').slice(0, 10); }).reverse().map(function (r) { return '<li><span class="ck">✓</span><span><b>' + esc(r.dept) + '</b>：' + esc(r.did) + '</span></li>'; }).join('') || '<li class="empty">まだありません</li>') + '</ul></div>';
+  }
 
   /* 資金繰り */
   var cs = d.cash;
   if (!cs) { $('cf').innerHTML = empty('設定で口座残高を入れると出ます'); $('cashFull').innerHTML = empty('設定（⚙️）の「お金」で、口座残高と毎月の決まった支払いを入れると出ます'); }
   else {
     var cls = function (x) { return x.end < 0 ? 'red' : x.end < cs.safety ? 'yel' : ''; };
-    $('cf').innerHTML = '<div class="cf">' + cs.months.map(function (x) { return '<div class="' + cls(x) + '">' + esc(x.label) + '<b>' + yen(x.end) + '</b></div>'; }).join('') + '</div>' +
+    $('cf').innerHTML = '<div class="cf">' + cs.months.map(function (x) { return '<span class="tag ' + cls(x) + '">' + esc(x.label) + ' ' + yen(x.end) + '</span>'; }).join('') + '</div>' +
       (cs.warn ? '<div class="cfwarn down">' + esc(cs.warn) + '</div>' : '') + (cs.over ? '<div class="cfwarn muted">期限切れの入金待ち ' + yen(cs.over) + ' は入れていません</div>' : '');
     $('cashFull').innerHTML = $('cf').innerHTML + '<div class="muted" style="margin:6px 0">はじめの残高：' + yen(cs.start) + '（' + esc(cs.start_from) + '）　安全ライン：' + yen(cs.safety) + '</div>' +
       tbl(['月', '月初', '入金', '出金', '月末'], cs.months.map(function (x) { return ['<td>' + esc(x.label) + '</td>', '<td class="num">' + yen(x.start) + '</td>', '<td class="num up">' + yen(x.in) + '</td>', '<td class="num down">' + yen(x.out) + '</td>', '<td class="num"><b>' + yen(x.end) + '</b></td>']; })) +
@@ -276,20 +322,50 @@
     '<h2 style="margin-top:14px">同業の動き</h2>' + tbl(['日付', '内容', '出どころ'], (d.peers || []).map(function (x) { return ['<td>' + esc(x.date || '') + '</td>', '<td>' + esc(x.text || x) + '</td>', '<td>' + (x.url ? '<a href="' + esc(x.url) + '" target="_blank">開く</a>' : '') + '</td>']; }));
   $('deptsFull').innerHTML = tbl(['部署', 'さいごの仕事', '止まっている日数', 'この先の予定'], (d.depts || []).map(function (x) { return ['<td>' + esc(x.name) + '</td>', '<td>' + esc(x.last) + '</td>', '<td class="num">' + esc(x.days_idle || 0) + '日</td>', '<td>' + esc(x.next || '') + '</td>']; })) +
     '<h2 style="margin-top:14px">AIの作業記録</h2><ul>' + ((d.ai_log || []).map(function (t) { return '<li>' + esc(t) + '</li>'; }).join('') || '<li class="empty">記録なし</li>') + '</ul>';
-  $('numbersFull').innerHTML = '<div class="kp" style="grid-template-columns:repeat(4,1fr)">' + $('money').innerHTML + '</div><div class="chart big" style="height:180px">' + $('chart').innerHTML + '</div>' +
+  $('numbersFull').innerHTML = '<div class="kpis">' + $('money').innerHTML + '</div><div class="chart" style="margin-top:18px">' + bars(true) + '</div>' +
     '<h2 style="margin-top:14px">取引先別の売上（今年）</h2>' + tbl(['取引先', '金額'], (m.by_client || []).map(function (x) { return ['<td>' + esc(x.name) + '</td>', '<td class="num">' + yen(x.amount) + '</td>']; }));
   $('docsFull').innerHTML = tbl(['受付日', '種類', '取引先', '場所'], (d.recent_docs || []).map(function (x) { return ['<td>' + esc(x.received) + '</td>', '<td>' + esc(x.type) + '</td>', '<td>' + esc(x.client) + '</td>', '<td class="muted">' + esc(x.path || '') + '</td>']; }));
   $('todoFull').innerHTML = '<h2>やること</h2>' + tbl(['期限', 'やること', '担当'], (d.todos || []).map(function (x) { return ['<td>' + esc(x.due) + ' ' + dtag(x.due) + '</td>', '<td>' + esc(x.task) + '</td>', '<td>' + esc(x.owner) + '</td>']; })) +
     '<h2 style="margin-top:14px">30日以内の期限</h2>' + tbl(['期限', '内容'], (d.deadlines30 || []).map(function (x) { return ['<td>' + esc(x.date) + ' ' + dtag(x.date) + '</td>', '<td>' + esc(x.text) + '</td>']; }));
   var reqs = d.requests || [];
   $('reqCount').textContent = reqs.length ? '頼んだこと ' + reqs.length + '件（' + reqs.filter(function (x) { return x.status !== '済'; }).length + '件 作業中）→' : '';
-  $('requestsFull').innerHTML = tbl(['頼んだ日', '内容', '状態', 'AIの返事'], reqs.map(function (x) { return ['<td>' + esc(x.date) + '</td>', '<td>' + esc(x.text) + '</td>', '<td>' + esc(x.status) + '</td>', '<td>' + esc(x.result || '') + '</td>']; }));
+  $('requestsFull').innerHTML = tbl(['頼んだ日', '担当（AIが決めた部署）', '内容', '状態', 'AIの返事'], reqs.map(function (x) { return ['<td>' + esc(x.date) + '</td>', '<td>' + esc(x.to || (x.status === '未着手' ? '（これから決める）' : 'AI社長室')) + '</td>', '<td>' + esc(x.text) + '</td>', '<td>' + esc(x.status) + (x.status === '未着手' ? ' <button class="b" type="button" data-cancelreq="' + esc(x.id) + '">取り消す</button>' : '') + '</td>', '<td>' + esc(x.result || '') + '</td>']; }));
   };
   render(d);
 
+  /* 部署の中の画面：今・次の予定・ふだん一緒に動く部署・実際に連携した部署・これまでの仕事・頼んだこと・やること */
+  var renderDept = function (i) {
+    var dd0 = lastD || d, list = dd0.depts || [], x = list[i]; if (!x) { $('deptView').innerHTML = '<div class="card">' + empty('部署が見つかりません') + '</div>'; return; }
+    var label = x._label || x.name, av = x._av || 'a1', names = list.map(function (y) { return y.name; });
+    var short = function (nm) { return String(nm).replace(/部$/, ''); };
+    var mine = (dd0.dept_log || []).filter(function (r) { return r.dept === x.name || r.dept === label; }).slice().reverse();
+    var others = function (r) { var t = r.did + ' ' + r.next + ' ' + r.link; return names.filter(function (nm) { return nm !== x.name && (t.indexOf(nm) >= 0 || (short(nm).length > 1 && t.indexOf(short(nm)) >= 0 && /部|室/.test(t))); }); };
+    var cnt = {}; mine.forEach(function (r) { others(r).forEach(function (nm) { cnt[nm] = (cnt[nm] || 0) + 1; }); });
+    (dd0.dept_log || []).forEach(function (r) { if (r.dept !== x.name && (r.did + r.next + r.link).indexOf(x.name) >= 0) cnt[r.dept] = (cnt[r.dept] || 0) + 1; });
+    var chip = function (nm) { var j = names.indexOf(nm), y = list[j] || {}; return '<a class="pchip" href="' + (j >= 0 ? '#dept-' + j : '#depts') + '"><img src="img/' + (y._av || 'a1') + '.png" alt="">' + esc(y._label || nm) + (cnt[nm] ? '<b>' + cnt[nm] + '回</b>' : '') + '</a>'; };
+    var partners = (x.partners || []).filter(function (nm) { return names.indexOf(nm) >= 0; });
+    var actual = Object.keys(cnt).filter(function (nm) { return names.indexOf(nm) >= 0; }).sort(function (a, b) { return cnt[b] - cnt[a]; });
+    var busy = dd0.ai && dd0.ai.working && (dd0.ai.now_dept ? (dd0.ai.now_dept === x.name || dd0.ai.now_dept === label) : (dd0.ai.to.indexOf(label) >= 0 || dd0.ai.to.indexOf(x.name) >= 0 || (!dd0.ai.to.length && i === 0)));
+    var reqs = (dd0.requests || []).filter(function (r) { return r.to === label || r.to === x.name; });
+    var todos = (dd0.todos || []).filter(function (t) { return t.owner === x.name || t.owner === label || (t.owner && label.indexOf(t.owner) === 0); });
+    $('deptView').innerHTML =
+      '<div class="card dhead"><img src="img/' + av + '.png" alt=""><div style="flex:1;min-width:0"><div class="dn">' + esc(label) + (busy ? ' <span class="aibusy"><i></i>作業中</span>' : '') + '</div><div class="muted">' + esc(x.role || '') + '</div>' +
+        '<div class="dnow"><b>いま：</b>' + esc(busy && dd0.ai.now_doing ? '作業中・' + dd0.ai.now_doing : (x.last || 'まだ記録なし')) + (x.next ? '<br><b>次の予定：</b>' + esc(x.next) : '') + '</div></div>' +
+        '</div>' +
+      '<div class="dgrid"><div class="card"><h2><img class="ic" src="img/depts.png" alt="">連携する部署</h2>' +
+        '<div class="muted" style="margin-bottom:6px">ふだん一緒に動く部署（設定の「部署」で決めたもの）</div><div class="pchips">' + (partners.length ? partners.map(chip).join('') : '<span class="empty">まだ決めていません（設定 → 部署 → 「部署の名前,役目,一緒に動く部署」）</span>') + '</div>' +
+        '<div class="muted" style="margin:14px 0 6px">実際に連携した部署（この部署の仕事に出てきた部署・この部署に渡された仕事）</div><div class="pchips">' + (actual.length ? actual.map(chip).join('') : '<span class="empty">まだありません</span>') + '</div></div>' +
+      '<div class="card"><h2><img class="ic" src="img/ai.png" alt="">この部署に頼んだこと</h2>' + (reqs.length ? '<ul class="dl">' + reqs.map(function (r) { return '<li><span class="tag ' + (r.status === '済' ? 't-ok' : 't-soon') + '">' + esc(r.status) + '</span>' + esc(r.text) + (r.result ? '<span class="muted">　→ ' + esc(r.result) + '</span>' : '') + '</li>'; }).join('') + '</ul>' : empty('まだありません（頼みごとは上の欄から。AI社長室がこの部署に振り分けると、ここに出ます）')) +
+        '<h2 style="margin-top:16px"><img class="ic" src="img/todo.png" alt="">この部署のやること</h2>' + (todos.length ? '<ul class="dl">' + todos.map(function (t) { return '<li><span class="tag t-soon">' + esc(String(t.due || '').slice(5)) + '</span>' + esc(t.task) + '</li>'; }).join('') + '</ul>' : empty('ありません')) + '</div></div>' +
+      '<div class="card"><h2><img class="ic" src="img/minutes.png" alt="">これまでの仕事（新しい順・' + mine.length + '件）</h2>' + (mine.length ? '<ol class="tl">' + mine.map(function (r) { var o = others(r);
+          return '<li><span class="tlday num">' + esc(String(r.date).slice(5)) + '</span><div><div>' + esc(r.did) + '</div>' + (r.next ? '<div class="muted">次：' + esc(r.next) + '</div>' : '') + (o.length ? '<div class="pchips sm">' + o.map(chip).join('') + '</div>' : '') + '</div></li>'; }).join('') + '</ol>' : empty('まだ記録がありません')) + '</div>';
+  };
+
   /* 画面の切り替え（#strategy などで別タブに） */
-  var show = function () { var h = (location.hash || '#home').slice(1); var v = $('v-' + h) ? h : 'home';
-    Array.prototype.forEach.call(document.querySelectorAll('.view'), function (el) { el.classList.toggle('on', el.id === 'v-' + v); }); };
+  var show = function () { var h = (location.hash || '#home').slice(1); var di = /^dept-(\d+)$/.exec(h); if (di) { renderDept(+di[1]); h = 'dept'; } var v = $('v-' + h) ? h : 'home';
+    Array.prototype.forEach.call(document.querySelectorAll('.view'), function (el) { el.classList.toggle('on', el.id === 'v-' + v); });
+    Array.prototype.forEach.call(document.querySelectorAll('#nav a[data-v]'), function (a) { a.classList.toggle('on', a.dataset.v === v || (v === 'dept' && a.dataset.v === 'depts')); });
+    $('backBar').hidden = v === 'home'; window.scrollTo(0, 0); };
   window.addEventListener('hashchange', show); show();
 
   /* 会社フォルダへの書き込み（判断箱・依頼箱）。Chrome / Edge の「フォルダを開く」機能を使う */
@@ -315,7 +391,7 @@
   };
   var now = function () { var t = new Date(); return t.getFullYear() + '-' + String(t.getMonth() + 1).padStart(2, '0') + '-' + String(t.getDate()).padStart(2, '0') + ' ' + String(t.getHours()).padStart(2, '0') + ':' + String(t.getMinutes()).padStart(2, '0'); };
   var fallback = function (text) { if (navigator.clipboard) navigator.clipboard.writeText(text); toast('このブラウザでは保存できないため、文をコピーしました。Claude に貼り付けてください'); };
-  if (window.showDirectoryPicker) { getDir(false).then(function (h) { $('connectBtn').hidden = !!h; }); $('connectBtn').onclick = function () { getDir(true).then(function (h) { if (h) { $('connectBtn').hidden = true; toast('会社フォルダとつながりました'); } }); }; }
+  if (window.showDirectoryPicker) { getDir(false).then(function (h) { $('connectBtn').hidden = !!h; if (!h) render(live || d); }); $('connectBtn').onclick = function () { getDir(true).then(function (h) { if (h) { $('connectBtn').hidden = true; toast('会社フォルダとつながりました'); refresh(false); } }); }; }
 
   document.addEventListener('click', function (ev) {
     var b = ev.target.closest('[data-dec]'); if (!b) return;
@@ -323,8 +399,8 @@
     appendBox('判断箱.json', rec).then(function (ok) {
       if (!ok) return fallback('判断の返事：' + rec.id + ' → ' + rec.answer);
       answered[rec.id] = rec.answer; try { localStorage.setItem('aihonsha-answered', JSON.stringify(answered)); } catch (e) {}
-      b.closest('.bs').outerHTML = '<span class="done">「' + rec.answer + '」と伝えました</span>';
-      toast('伝えました。AIが次に動くときに実行します（すぐなら Claude に「進めて」）');
+      b.closest('.bs').outerHTML = '<span class="done">「' + esc(rec.answer) + '」と伝えました <button class="b" type="button" data-undo="' + esc(rec.id) + '">取り消す</button></span>';
+      toast('伝えました。10分以内にAIが取りかかります。間違えたときは「取り消す」を押してください');
     }).catch(function () { toast('保存できませんでした。「会社フォルダとつなぐ」を押してください'); });
   });
   $('reqForm').addEventListener('submit', function (ev) {
@@ -332,9 +408,101 @@
     var rec = { id: 'r' + Date.now(), text: t, time: now(), status: '未着手' };
     appendBox('依頼箱.json', rec).then(function (ok) {
       if (!ok) return fallback(t);
-      $('reqText').value = ''; toast('頼みました。AIが次に動くときに取りかかります（すぐなら Claude に「進めて」）');
+      $('reqText').value = ''; toast('AI社長室に頼みました。担当の部署を決めて、10分以内に取りかかります');
     }).catch(function () { toast('保存できませんでした。「会社フォルダとつなぐ」を押してください'); });
   });
+
+  /* デザインの切り替え：画面で選ぶと、この画面と設定.json の両方に残す */
+  document.addEventListener('click', function (ev) {
+    var b = ev.target.closest('[data-design]'); if (!b) return; var x = b.dataset.design;
+    try { localStorage.setItem('aihonsha-design', x); } catch (e) {}
+    (live || d).design = x; render(live || d);
+    (async function () { var dir = await getDir(false); if (!dir) return;
+      var fh = await dir.getFileHandle('設定.json'); var st = JSON.parse(await (await fh.getFile()).text() || '{}'); st.design = x;
+      var w = await fh.createWritable(); await w.write(JSON.stringify(st, null, 1) + '\n'); await w.close(); })().catch(function () {});
+    toast('デザインを ' + x + ' にしました（設定画面でも変えられます）');
+  });
+
+  /* 音声入力：🎤 を押して話すと、頼む欄に文字が入る（Chrome・Edge）。もう一度押すと止まる */
+  (function () {
+    var SR = window.SpeechRecognition || window.webkitSpeechRecognition, rec = null, on = false, base = '';
+    $('micBtn').addEventListener('click', function () {
+      if (!SR) { toast('このブラウザでは声の入力が使えません。Chrome か Edge で開くか、Windows なら ⊞Windowsキー＋H で話せます'); return; }
+      if (on) { rec.stop(); return; }
+      rec = new SR(); rec.lang = 'ja-JP'; rec.interimResults = true; rec.continuous = true; base = $('reqText').value ? $('reqText').value + ' ' : '';
+      rec.onresult = function (e) { var fin = '', mid = ''; for (var i = 0; i < e.results.length; i++) { if (e.results[i].isFinal) fin += e.results[i][0].transcript; else mid += e.results[i][0].transcript; } $('reqText').value = base + fin + mid; };
+      rec.onstart = function () { on = true; $('micBtn').classList.add('on'); toast('聞いています…話し終わったら 🎤 をもう一度押してください'); };
+      rec.onend = function () { on = false; $('micBtn').classList.remove('on'); if ($('reqText').value.trim()) toast('入りました。よければ「頼む」を押してください'); };
+      rec.onerror = function (e) { on = false; $('micBtn').classList.remove('on'); toast(e.error === 'not-allowed' ? 'マイクが許可されていません。アドレス欄の左のマークからマイクを「許可」にしてください' : '声を聞き取れませんでした（' + e.error + '）。もう一度押してください'); };
+      try { rec.start(); } catch (err) { toast('声の入力を始められませんでした'); }
+    });
+  })();
+
+  /* 取り消す・止める：箱の中の返事や頼みごとは、AIが受け取る前なら取り消せる。作業中のAIは「止める」で止まる（見張り番が2秒ごとに見ている） */
+  var editBox = async function (name, fn) { var dir = await getDir(true); if (!dir) return null; var box = await dir.getDirectoryHandle('箱', { create: true }), fh = await box.getFileHandle(name, { create: true });
+    var list = []; try { list = JSON.parse(await (await fh.getFile()).text() || '[]'); } catch (e) {} var r = fn(list); var w = await fh.createWritable(); await w.write(JSON.stringify(r.list, null, 1)); await w.close(); return r.hit; };
+  document.addEventListener('click', function (ev) {
+    var u = ev.target.closest('[data-undo]'), c = ev.target.closest('[data-cancelreq]');
+    if (u) { var id = u.dataset.undo; editBox('判断箱.json', function (l) { var k = l.filter(function (x) { return x.id !== id; }); return { list: k, hit: k.length < l.length }; }).then(function (hit) {
+        if (hit) { delete answered[id]; try { localStorage.setItem('aihonsha-answered', JSON.stringify(answered)); } catch (e) {} toast('取り消しました。もう一度選び直せます'); refresh(false); }
+        else toast('もうAIが受け取りました。作業中なら上の「⏹ 止める」を押すか、「AIに頼む」で「○○は取り消して」と伝えてください'); }).catch(function () { toast('取り消せませんでした'); }); }
+    if (c) { var rid = c.dataset.cancelreq; editBox('依頼箱.json', function (l) { var hit = false; l.forEach(function (x) { if (x.id === rid && x.status === '未着手') { x.status = '取り消し'; hit = true; } }); return { list: l, hit: hit }; }).then(function (hit) {
+        toast(hit ? '頼みごとを取り消しました' : 'もうAIが取りかかっています。止めるときは上の「⏹ 止める」を押してください'); refresh(false); }).catch(function () { toast('取り消せませんでした'); }); }
+    if (ev.target.id === 'stopBtn' || ev.target.id === 'stopBtn2') {
+      if (!confirm('AIの作業を止めますか？\n・数秒で止まります\n・ここまでにAIが書いたものは残ります\n・止めた頼みごとや返事は、もう一度出すまでAIは動きません')) return;
+      (async function () { var dir = await getDir(true); if (!dir) return false; var box = await dir.getDirectoryHandle('箱', { create: true }), fh = await box.getFileHandle('止めて.txt', { create: true }), w = await fh.createWritable(); await w.write(now()); await w.close(); return true; })()
+        .then(function (ok) { toast(ok ? '止めるよう伝えました。数秒で止まります' : '「会社フォルダとつなぐ」を押してください'); setTimeout(function () { refresh(false); }, 4000); }).catch(function () { toast('止められませんでした'); });
+    }
+  });
+
+  /* 判断の中身を見る：会社フォルダの中のファイルを、この画面の中で開く。下に OK／あとで／やめる */
+  var peekCur = null;
+  var writeFile = async function (dir, path, text) { var parts = path.split('/'), cur = dir; for (var i = 0; i < parts.length - 1; i++) cur = await cur.getDirectoryHandle(parts[i], { create: true });
+    var fh = await cur.getFileHandle(parts[parts.length - 1], { create: true }), w = await fh.createWritable(); await w.write(text); await w.close(); };
+  var openPeek = async function (path, decId) {
+    var dir = await getDir(false);
+    if (!dir) { toast('中身を見るには「会社フォルダとつなぐ」を押してください（ファイル：' + path + '）'); return; }
+    var f = await rd(dir, path); if (!f) { toast('ファイルが見つかりません：' + path); return; }
+    var body = f.text.replace(/^﻿/, ''); peekCur = { path: path, dec: decId, text: body };
+    $('peekEdit').hidden = true; $('peekFix').hidden = true; $('peekBody').hidden = false; $('peekTools').hidden = false;
+    $('peekTitle').textContent = '中身'; $('peekPath').textContent = path;
+    $('peekBody').innerHTML = /\.(md|txt)$/i.test(path) ? mdHtml(body) : '<pre>' + esc(body) + '</pre>';
+    var dec = ((lastD || d).decisions || []).filter(function (x) { return x.id === decId; })[0];
+    $('peekFoot').innerHTML = dec && !answered[dec.id] ? '<div class="muted" style="margin-bottom:8px">' + esc(dec.text) + '</div><div class="bs" style="justify-content:flex-start">' + (dec.buttons || ['OK', 'あとで', 'やめる']).map(function (b) {
+      return '<button class="btn ' + (b === 'OK' ? 'ok' : b === 'あとで' ? 'later' : 'ghost') + '" data-dec="' + esc(dec.id) + '" data-ans="' + esc(b) + '">' + esc(b) + '</button>'; }).join('') + '</div>' : '';
+    $('peek').hidden = false;
+  };
+  document.addEventListener('click', function (ev) {
+    var pb = ev.target.closest('[data-peek]'); if (pb) { openPeek(pb.dataset.peek, pb.dataset.peekdec).catch(function () { toast('中身を開けませんでした'); }); return; }
+    if (ev.target.id === 'peekClose' || ev.target.id === 'peek') $('peek').hidden = true;
+  });
+  document.addEventListener('keydown', function (ev) { if (ev.key === 'Escape') $('peek').hidden = true; });
+  /* 中身を直す：自分で直す（はじめは元の文を _元 として残す）／AIに直してもらう（判断は直るまで待つ） */
+  $('peekEditBtn').addEventListener('click', function () { if (!peekCur) return; $('peekText').value = peekCur.text; $('peekBody').hidden = true; $('peekTools').hidden = true; $('peekEdit').hidden = false; $('peekText').focus(); });
+  $('peekCancel').addEventListener('click', function () { $('peekEdit').hidden = true; $('peekBody').hidden = false; $('peekTools').hidden = false; });
+  $('peekSave').addEventListener('click', async function () {
+    if (!peekCur) return; var t = $('peekText').value;
+    if (/\d{7,}/.test(t) && !confirm('長い数字が入っています。口座番号などではありませんか？このまま保存しますか？')) return;
+    try { var dir = await getDir(true); if (!dir) return toast('「会社フォルダとつなぐ」を押してください');
+      var bak = peekCur.path.replace(/(\.[^./]+)?$/, function (e) { return '_元' + (e || '.md'); });
+      if (!(await rd(dir, bak))) await writeFile(dir, bak, peekCur.text);
+      await writeFile(dir, peekCur.path, t); peekCur.text = t;
+      $('peekBody').innerHTML = /\.(md|txt)$/i.test(peekCur.path) ? mdHtml(t) : '<pre>' + esc(t) + '</pre>';
+      $('peekEdit').hidden = true; $('peekBody').hidden = false; $('peekTools').hidden = false;
+      toast('保存しました（元の文は ' + bak + ' に残しています）。よければ下の OK を押してください');
+    } catch (e) { toast('保存できませんでした'); }
+  });
+  $('peekFixBtn').addEventListener('click', function () { $('peekFix').hidden = false; $('fixText').focus(); });
+  $('fixGo').addEventListener('click', function () {
+    var t = $('fixText').value.trim(); if (!t || !peekCur) return;
+    var rec = { id: 'r' + Date.now(), text: '「' + peekCur.path + '」を直して：' + t + (peekCur.dec ? '（判断待ち ' + peekCur.dec + ' の中身。直したら判断待ちの文も合わせて直し、もう一度社長に出す）' : ''), time: now(), status: '未着手', link: peekCur.path };
+    appendBox('依頼箱.json', rec).then(function (ok) { if (!ok) return fallback(rec.text); $('fixText').value = ''; $('peekFix').hidden = true; toast('AI社長室に直すよう頼みました。直ったら、もう一度「判断が必要なこと」に出ます'); })
+      .catch(function () { toast('頼めませんでした。「会社フォルダとつなぐ」を押してください'); });
+  });
+  $('fixMic').addEventListener('click', function () { var SR = window.SpeechRecognition || window.webkitSpeechRecognition; if (!SR) return toast('このブラウザでは声の入力が使えません');
+    var r = new SR(); r.lang = 'ja-JP'; r.interimResults = true; var base = $('fixText').value; $('fixMic').classList.add('on');
+    r.onresult = function (e) { var s = ''; for (var i = 0; i < e.results.length; i++) s += e.results[i][0].transcript; $('fixText').value = (base ? base + ' ' : '') + s; };
+    r.onend = function () { $('fixMic').classList.remove('on'); }; r.onerror = function () { $('fixMic').classList.remove('on'); toast('声を聞き取れませんでした'); }; r.start(); });
 
   /* 議事録：選ぶ・確認した（台帳/議事録の確認.json に画面が書く）・AIに頼む */
   document.addEventListener('click', function (ev) {
@@ -384,18 +552,18 @@
   var dot = function (ms, warnH, badH) { var h = (Date.now() - ms) / 3600000; return '<span class="dot ' + (h > badH ? 'dr' : h > warnH ? 'dy' : 'dg') + '"></span>'; };
 
   var compute = async function (dir) {
-    var F = {}, names = ['設定.json', '台帳/売上台帳.csv', '台帳/書類台帳.csv', '台帳/やること.csv', '台帳/判断待ち.json', '台帳/経営.json', '台帳/部署の記録.csv', '台帳/お金.json', '箱/依頼箱.json', '箱/判断箱.json', '台帳/議事録の確認.json', '台帳/入出金の予定.csv'];
+    var F = {}, names = ['設定.json', '台帳/売上台帳.csv', '台帳/書類台帳.csv', '台帳/やること.csv', '台帳/判断待ち.json', '台帳/経営.json', '台帳/部署の記録.csv', '台帳/お金.json', '箱/依頼箱.json', '箱/判断箱.json', '台帳/議事録の確認.json', '台帳/入出金の予定.csv', '仕組み/動いています.lock', '仕組み/見張り番の記録.txt', '仕組み/さいごの作業.txt'];
     var got = await Promise.all(names.map(function (n) { return rd(dir, n); })); names.forEach(function (n, i) { F[n] = got[i]; });
     var st = js(F['設定.json'], {}), now0 = new Date(), today = ymd(now0), ym = today.slice(0, 7);
     var lm = new Date(now0.getFullYear(), now0.getMonth() - 1, 1), lym = ymd(lm).slice(0, 7);
     var dd = function (s) { var t = new Date(String(s).slice(0, 10) + 'T00:00:00'); return isNaN(t) ? null : Math.round((t - new Date(today + 'T00:00:00')) / 86400000); };
     var sales = F['台帳/売上台帳.csv'] ? csv(F['台帳/売上台帳.csv'].text) : [], docs = F['台帳/書類台帳.csv'] ? csv(F['台帳/書類台帳.csv'].text) : [];
     var todo = F['台帳/やること.csv'] ? csv(F['台帳/やること.csv'].text) : [], log = F['台帳/部署の記録.csv'] ? csv(F['台帳/部署の記録.csv'].text) : [];
-    var d = { company: st.company || '', updated: today, _rows: num(st.decision_rows) || 5 };
+    var d = { _live: true, company: st.company || '', updated: today, _rows: num(st.decision_rows) || 5, design: st.design || '', boss: st.boss_name || '' };
     /* 判断（返事済みは外す・「あとで」は again の日まで隠す） */
     var answers = js(F['箱/判断箱.json'], []).reduce(function (a, x) { a[x.id] = x.answer; return a; }, {});
     d.decisions = js(F['台帳/判断待ち.json'], []).filter(function (x) { return !answers[x.id] && !(x.again && x.again > today); });
-    d.requests = js(F['箱/依頼箱.json'], []).slice().reverse().map(function (x) { return { date: x.time, text: x.text, status: x.status, result: x.result }; });
+    d.requests = js(F['箱/依頼箱.json'], []).slice().reverse().map(function (x) { return { id: x.id, date: x.time, to: x.to || '', text: x.text, status: x.status, result: x.result }; });
     /* 経営 */
     var k = js(F['台帳/経営.json'], {}); var items = k.strategies || [];
     d.strategy = { policy: k.policy || st.policy || '', year_goal: k.year_goal || (st.year_sales ? '売上 ' + Number(st.year_sales).toLocaleString() + '円' + (st.year_profit ? '・利益 ' + Number(st.year_profit).toLocaleString() + '円' : '') : ''), items: items, next_review: k.next_review || '' };
@@ -403,12 +571,16 @@
     d.pdca_history = k.pdca_history || []; d.peers = k.peers || [];
     /* 部署 */
     var deptMap = { d_jimu: '事務', d_keiri: '経理', d_eigyo: '営業', d_hasshin: '発信', d_kikaku: '企画', d_jinji: '人事' };
-    d.depts = Object.keys(deptMap).filter(function (key) { return st[key] !== false && (st[key] || key !== 'd_hasshin' && key !== 'd_jinji'); }).map(function (key) {
-      var name = deptMap[key], rows = log.filter(function (r) { return r['部署'] === name; }).sort(function (a, b) { return a['日付'] < b['日付'] ? 1 : -1; }), r = rows[0];
-      if (!r) return { name: name, last: 'まだ記録なし', days_idle: 0 };
-      var n = -dd(r['日付']); return { name: name, last: (n === 0 ? '今日' : n === 1 ? '昨日' : r['日付'].slice(5)) + '：' + r['やったこと'], days_idle: n, next: r['次の予定'] || '' }; });
-    var lastDay = log.map(function (r) { return r['日付']; }).sort().pop();
-    d.ai_log = log.filter(function (r) { return r['日付'] === lastDay; }).map(function (r) { return r['部署'] + '：' + r['やったこと']; }).reverse();
+    var custom = String(st.depts_custom || '').split(/\n/).map(function (l) { var p = l.split(/[,，]/); return p[0] && p[0].trim() ? { name: p[0].trim(), role: (p[1] || '').trim(), partners: String(p[2] || '').split(/[・\/／、\s]+/).map(function (x) { return x.trim(); }).filter(Boolean) } : null; }).filter(Boolean);
+    var deptList = custom.length ? custom : Object.keys(deptMap).filter(function (key) { return st[key] !== false && (st[key] || key !== 'd_hasshin' && key !== 'd_jinji'); }).map(function (key) { return { name: deptMap[key], role: '', partners: [] }; });
+    d.depts = deptList.map(function (dp) {
+      var name = dp.name, rows = log.filter(function (r) { return r['部署'] === name; }).sort(function (a, b) { return a['日付'] < b['日付'] ? 1 : -1; }), r = rows[0];
+      if (!r) return { name: name, role: dp.role, partners: dp.partners, last: 'まだ記録なし', days_idle: 0 };
+      var n = -dd(r['日付']); return { name: name, role: dp.role, partners: dp.partners, last: (n === 0 ? '今日' : n === 1 ? '昨日' : r['日付'].slice(5)) + '：' + r['やったこと'], days_idle: n, next: r['次の予定'] || '' }; });
+    d.dept_log = log.map(function (r) { return { date: r['日付'], dept: r['部署'], did: r['やったこと'], next: r['次の予定'] || '', link: r['連携'] || '' }; });
+    /* AIがやったこと：新しい順に8件（同じ日は下の行ほど新しい） */
+    d.ai_log = log.map(function (r, i) { return { r: r, i: i }; }).sort(function (a, b) { return a.r['日付'] === b.r['日付'] ? b.i - a.i : (a.r['日付'] < b.r['日付'] ? 1 : -1); }).slice(0, 8)
+      .map(function (x) { var n = -dd(x.r['日付']); return (n === 0 ? '' : n === 1 ? '昨日 ' : x.r['日付'].slice(5) + ' ') + x.r['部署'] + '：' + x.r['やったこと']; });
     /* お金：会計ソフトの数字（3日以内）があればそれを、なければ台帳から */
     var acc = js(F['台帳/お金.json'], null), fresh = acc && acc.synced_at && (Date.now() - new Date(acc.synced_at.replace(' ', 'T')).getTime()) < 3 * 86400000;
     var unpaid = sales.filter(function (r) { return !r['入金日']; });
@@ -478,7 +650,34 @@
     /* 新しさの表示：画面は今計算・AIの最後の作業・会計の取得 */
     var aiTime = Math.max.apply(null, ['台帳/判断待ち.json', '台帳/経営.json', '台帳/部署の記録.csv'].map(function (n) { return F[n] ? F[n].time : 0; }));
     var accTime = acc && acc.synced_at ? new Date(acc.synced_at.replace(' ', 'T')).getTime() : 0;
-    d._fresh = dot(Date.now(), 1, 2) + '台帳から ' + hm(Date.now()) + ' に計算　' + (aiTime ? dot(aiTime, 24, 72) + 'AIの最後の作業 ' + ago(aiTime) + '　' : '') +
+    var lk = F['仕組み/動いています.lock'], wl = F['仕組み/見張り番の記録.txt'] ? F['仕組み/見張り番の記録.txt'].text.replace(/^\ufeff/, '').trim().split(/\r?\n/) : [];
+    var lastWake = wl.filter(function (l) { return /Claude を起こします|更新します/.test(l); }).pop() || '', lastEnd = wl.filter(function (l) { return /終わりました|更新しました|失敗/.test(l); }).pop() || '';
+    var working = !!(lk && Date.now() - lk.time < 2 * 3600000);
+    var lkLines = lk ? lk.text.replace(/^\ufeff/, '').trim().split(/\r?\n/) : [], nowLine = (lkLines.filter(function (l) { return /^いま[:：]/.test(l.trim()); }).pop() || '').trim().replace(/^いま[:：]\s*/, '');
+    var nowDept = (nowLine.match(/^([^・:：\s]+)/) || [])[1] || '', nowDoing = nowLine.replace(/^[^・:：\s]+[・:：\s]*/, '');
+    d.ai = { now_dept: working ? nowDept : '', now_doing: working ? nowDoing : '', working: working, why: working ? ((lkLines[0] || '').trim().replace(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}\s*/, '') || 'AIの作業') : '',
+      since: working ? hm(lk.time) : '', last: (lastEnd || lastWake).slice(0, 16), lastWhy: lastWake.replace(/^.{16}\s*Claude を起こします：/, ''),
+      runs: (function () { var out = [], cur = null; wl.forEach(function (l) { var t = l.slice(0, 16), body = l.slice(17);
+          if (/^【試し】/.test(body)) return;
+          var m = body.match(/^(?:Claude を起こします|AIが動き始めました)[:：](.*)/); if (m) { if (cur) out.push(cur); cur = { start: t, why: m[1].trim(), end: '', result: '' }; return; }
+          if (/^(終わりました|社長が止めました|.*更新しました|.*失敗)/.test(body) && cur) { cur.end = t; cur.result = /止め/.test(body) ? '止めた' : /失敗/.test(body) ? '失敗' : '終わった'; out.push(cur); cur = null; } });
+        if (cur) out.push(cur); return out.reverse().slice(0, 30); })(),
+      report: F['仕組み/さいごの作業.txt'] ? F['仕組み/さいごの作業.txt'].text.replace(/^\ufeff/, '').trim() : '', report_time: F['仕組み/さいごの作業.txt'] ? hm(F['仕組み/さいごの作業.txt'].time) : '',
+      waits: d.requests.filter(function (x) { return x.status === '未着手'; }).map(function (x) { return '頼みごと：' + x.text; }).concat(js(F['箱/判断箱.json'], []).map(function (x) { return '判断の返事：' + x.answer + '（' + x.id + '）'; })),
+      sched: (function () { var t = new Date(), out = [];
+          var odd = new Date(t); odd.setHours(9, 0, 0, 0); if (odd <= t) odd.setDate(odd.getDate() + 1); while (odd.getDate() % 2 === 0) odd.setDate(odd.getDate() + 1);
+          var mon = new Date(t); mon.setHours(9, 30, 0, 0); while (mon.getDay() !== 1 || mon <= t) { mon.setDate(mon.getDate() + 1); mon.setHours(9, 30, 0, 0); }
+          var mh = num(st.minutes_hour) || 18, mm = new Date(t); mm.setHours(mh, 0, 0, 0); if (mm <= t) mm.setDate(mm.getDate() + 1);
+          var f = function (x) { return (x.getMonth() + 1) + '/' + x.getDate() + '（' + '日月火水木金土'[x.getDay()] + '）' + x.getHours() + ':' + String(x.getMinutes()).padStart(2, '0'); };
+          out.push(['見張り番', '10分ごと', 'やることがあるときだけAIを起こす（頼みごと・返事・受付箱・毎朝の確認）']);
+          out.push(['毎日の議事録', f(mm) + 'ごろ', 'その日の会社の動きをまとめる']);
+          out.push(['朝会（AI社長室）', f(odd), '売上の確認・発信・30日計画・新規事業（1日おき）']);
+          out.push(['収益モニター（経営企画室）', f(mon), '売上と集客の数字を集めて知らせる（毎週）']);
+          return out; })(),
+      waiting: d.requests.filter(function (x) { return x.status === '未着手' || x.status === '作業中'; }).length + (js(F['箱/判断箱.json'], []).length ? 1 : 0),
+      to: d.requests.filter(function (x) { return x.status === '未着手' && x.to; }).map(function (x) { return x.to; }) };
+    d._fresh = (working ? '<span class="aibusy"><i></i>AIが作業中：' + esc(d.ai.now_dept ? d.ai.now_dept + (d.ai.now_doing ? '・' + d.ai.now_doing : '') : d.ai.why) + '（' + d.ai.since + 'から）</span> <button class="b stop" type="button" id="stopBtn">⏹ 止める</button>　' : '<span class="aiidle">○ AIは待機中' + (d.ai.last ? '（最後の作業 ' + esc(d.ai.last.slice(5)) + '）' : '') + '</span>　') +
+      dot(Date.now(), 1, 2) + '台帳から ' + hm(Date.now()) + ' に計算　' + (aiTime ? dot(aiTime, 24, 72) + 'AIの最後の作業 ' + ago(aiTime) + '　' : '') +
       (st.accounting && st.accounting !== 'none' ? (accTime ? dot(accTime, 8, 24) + '会計ソフト ' + ago(accTime) : '<span class="dot dr"></span>会計ソフト まだ取得なし') : '') +
       '　<button class="b" id="refreshBtn" type="button">↻ 今すぐ更新</button>';
     d._needMoney = st.accounting && st.accounting !== 'none' && (!accTime || Date.now() - accTime > 6 * 3600000);
@@ -491,8 +690,9 @@
     if (byHand && live && live._needMoney) { var reqs = live.requests || []; if (!reqs.some(function (x) { return x.status !== '済' && /money-sync/.test(x.text); }))
       appendBox('依頼箱.json', { id: 'r' + Date.now(), text: '会計ソフトの数字が古いので /money-sync で取り直して', time: now(), status: '未着手' }).then(function () { toast('最新にしました。会計ソフトの数字はAIに取り直しを頼みました'); }); }
   };
-  document.addEventListener('click', function (ev) { if (ev.target.id === 'refreshBtn') refresh(true); });
+  document.addEventListener('click', function (ev) { if (ev.target.id === 'refreshBtn') refresh(true); var nb = ev.target.closest('[data-next="connect"]'); if (nb) { ev.preventDefault(); $('connectBtn').click(); } });
   refresh(false); setInterval(function () { if (!document.hidden) refresh(false); }, 180000);
+  setInterval(function () { if (!document.hidden && live && live.ai && live.ai.working) refresh(false); }, 15000);
   document.addEventListener('visibilitychange', function () { if (!document.hidden) refresh(false); });
   $('connectBtn').addEventListener('click', function () { setTimeout(function () { refresh(true); }, 800); });
 })();

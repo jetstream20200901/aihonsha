@@ -3,7 +3,7 @@
 #   起こす条件：画面から頼みごと・判断の返事が届いた／受付箱に書類が入った／会計ソフトの数字が6時間より古い（7〜19時）／今日の朝の確認がまだ（7時以降）／今日の議事録がまだ（設定の minutes_hour 時以降。初期値18時）
 #   新しい版：1日1回、公開の置き場（GitHub）で版を確かめ、新しければ判断待ちに出す。社長が「OK」を押したら、データはそのまま仕組みだけ新しくする（AIは使わない）
 #   試すだけ：powershell -ExecutionPolicy Bypass -File 見張り番.ps1 -DryRun
-param([switch]$DryRun, [string]$Folder = (Split-Path -Parent $PSScriptRoot),
+param([switch]$DryRun, [string]$Folder = (Split-Path -Parent $PSScriptRoot), [string]$ClaudeExe = '',
       [string]$VersionUrl = 'https://raw.githubusercontent.com/jetstream20200901/aihonsha/main/version.txt',
       [string]$ZipUrl = 'https://github.com/jetstream20200901/aihonsha/releases/latest/download/aihonsha.zip')
 
@@ -17,6 +17,8 @@ function ReadJson($rel, $def) { $p = Join-Path $Folder $rel; if (-not (Test-Path
 # 前の Claude がまだ動いていたら待つ（2時間たったロックは古いとみなす）
 if (Test-Path $lock) { if ((Get-Item $lock).LastWriteTime -gt (Get-Date).AddHours(-2)) { exit 0 } else { Remove-Item $lock -Force } }
 
+$stopFile = Join-Path $Folder '箱\止めて.txt'
+if (Test-Path $stopFile) { Remove-Item $stopFile -Force -ErrorAction SilentlyContinue }
 $now = Get-Date; $today = $now.ToString('yyyy-MM-dd'); $reasons = @()
 $utf8 = New-Object Text.UTF8Encoding($false)
 function WriteJson($rel, $obj) { [IO.File]::WriteAllText((Join-Path $Folder $rel), (ConvertTo-Json -InputObject @($obj) -Depth 10), $utf8) }
@@ -101,20 +103,43 @@ if ($DryRun) { Log "【試し】起こす理由：$why（実際には起こし�
 
 $claude = Get-Command claude -ErrorAction SilentlyContinue
 if (-not $claude) { $p = Join-Path $env:USERPROFILE '.local\bin\claude.exe'; if (Test-Path $p) { Set-Alias claude $p } ; $claude = Get-Command claude -ErrorAction SilentlyContinue }
-if (-not $claude) { Log "Claude Code（claude コマンド）が見つかりません。理由：$why"; exit 1 }
+if (-not $claude -and -not $ClaudeExe) { Log "Claude Code（claude コマンド）が見つかりません。理由：$why"; exit 1 }
+$exe = if ($ClaudeExe) { $ClaudeExe } elseif ($claude.CommandType -eq 'Alias') { $claude.Definition } else { $claude.Source }
 
 $only = @($reasons | Where-Object { $_ -ne '今日の議事録' }) -join '・'
 $prompt = if ($morning) { "会社のルール（CLAUDE.md と AI本社の基本ルール）の「毎朝の確認」を行って。ただし、やることが無い手順はとばして短く終わらせて。" }
           elseif ($only) { "会社のルール（CLAUDE.md と AI本社の基本ルール）の「毎朝の確認」のうち、次に関係する手順だけを行って：$only。それ以外はしないで、短く終わらせて。" }
           else { "ほかの手順はしないで、短く終わらせて。" }
 if ($minutes) { $prompt += " 最後に /daily-minutes で今日の議事録を書いて。" }
-New-Item -ItemType File -Path $lock -Force | Out-Null
+[IO.File]::WriteAllText($lock, ($now.ToString('yyyy-MM-dd HH:mm') + ' ' + $why), $utf8)   # 画面が「AIが作業中：○○」と出すための目印
 try {
   Log "Claude を起こします：$why"
   Push-Location $Folder
-  & claude -p $prompt --permission-mode acceptEdits --allowedTools "Read,Write,Edit,Glob,Grep,WebSearch,WebFetch" 2>&1 | Out-File -FilePath (Join-Path $here 'さいごの作業.txt') -Encoding UTF8
+  [Console]::OutputEncoding = [Text.Encoding]::UTF8; $OutputEncoding = [Text.Encoding]::UTF8   # claude の日本語の出力を文字化けさせない
+  $extra = @(); if ($st -and $st.ai_read_dirs) { foreach ($x in ([string]$st.ai_read_dirs -split "`r?`n")) { $x = $x.Trim(); if ($x -and (Test-Path -LiteralPath $x)) { $extra += '--add-dir'; $extra += $x } } }   # 設定で許した、会社フォルダの外のフォルダ
+  $q = { param($a) '"' + ($a -replace '"', '\"') + '"' }
+  $argLine = '-p ' + (& $q $prompt) + ' --permission-mode acceptEdits ' + (($extra | ForEach-Object { if ($_ -like '--*') { $_ } else { & $q $_ } }) -join ' ') + ' --allowedTools "Read,Write,Edit,Glob,Grep,WebSearch,WebFetch"'
+  $outFile = Join-Path $here 'さいごの作業.txt'; $errFile = Join-Path $here 'さいごの作業_エラー.txt'
+  $proc = Start-Process -FilePath $exe -ArgumentList $argLine -WorkingDirectory $Folder -NoNewWindow -PassThru -RedirectStandardOutput $outFile -RedirectStandardError $errFile
+  $stopped = $false
+  while (-not $proc.HasExited) {
+    if (Test-Path $stopFile) {   # 社長が画面で「⏹ 止める」を押した
+      & taskkill.exe /PID $proc.Id /T /F | Out-Null; $stopped = $true
+      Remove-Item $stopFile -Force -ErrorAction SilentlyContinue
+      # 同じ仕事でまたすぐ起きないように：判断の返事は箱から外し、まだの頼みごとは「止めた」にする（台帳はそのまま）
+      [IO.File]::WriteAllText((Join-Path $Folder '箱\判断箱.json'), '[]', $utf8)
+      $rq = @(ReadJson '箱\依頼箱.json' @()); foreach ($r in $rq) { if ($r.status -eq '未着手' -or $r.status -eq '作業中') { $r.status = '止めた' } }
+      if ($rq.Count) { WriteJson '箱\依頼箱.json' $rq }
+      $logCsv = Join-Path $Folder '台帳\部署の記録.csv'; if (Test-Path $logCsv) { Add-Content -LiteralPath $logCsv -Value ($today + ',秘書室,社長がAIの作業を止めた（' + $why + '）,') -Encoding UTF8 }
+      Log "社長が止めました：$why"
+      break
+    }
+    Start-Sleep -Seconds 2
+  }
   Pop-Location
-  if ($morning) { Set-Content -Path $mark -Value $today -Encoding UTF8 }
-  if ($minutes) { Set-Content -Path $mmark -Value $today -Encoding UTF8 }
-  Log '終わりました'
+  if (-not $stopped) {
+    if ($morning) { Set-Content -Path $mark -Value $today -Encoding UTF8 }
+    if ($minutes) { Set-Content -Path $mmark -Value $today -Encoding UTF8 }
+    Log '終わりました'
+  }
 } finally { Remove-Item $lock -Force -ErrorAction SilentlyContinue }

@@ -4,41 +4,40 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>設定｜AI本社</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=Zen+Kaku+Gothic+New:wght@500;700;900&family=M+PLUS+Rounded+1c:wght@500;700;800&family=Inter:wght@500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="theme.css">
 <style>
-  :root { --bg:#f6f5f1; --card:#fff; --ink:#1f2328; --muted:#5f6670; --line:#e3e1da; --accent:#2f6f5e; --soon:#9a6700; --warn:#b4232a; }
-  @media (prefers-color-scheme: dark) { :root { --bg:#16181b; --card:#1f2226; --ink:#e8e6e1; --muted:#a0a4aa; --line:#33373c; --accent:#6fc2a8; --soon:#e3b341; --warn:#ff7b80; } }
-  * { box-sizing:border-box; }
-  body { margin:0; background:var(--bg); color:var(--ink); font-family:"Hiragino Sans","Yu Gothic UI","Meiryo",system-ui,sans-serif; line-height:1.6; }
-  .wrap { max-width:1300px; margin:0 auto; padding:18px 20px 60px; display:grid; grid-template-columns:200px 1fr; gap:18px; }
-  h1 { grid-column:1/-1; font-size:22px; margin:0; display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
-  aside { position:sticky; top:12px; align-self:start; } aside a { display:block; padding:7px 12px; border-radius:8px; color:var(--ink); text-decoration:none; font-size:14px; }
-  aside a:hover { background:var(--card); }
-  .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:16px 18px; margin-bottom:12px; scroll-margin-top:12px; }
-  h2 { font-size:16px; margin:0 0 6px; }
-  label { display:block; font-size:13px; color:var(--muted); margin:10px 0 3px; }
-  input, select, textarea { width:100%; padding:7px 10px; border:1px solid var(--line); border-radius:8px; font-size:15px; font-family:inherit; background:var(--card); color:var(--ink); }
-  textarea { min-height:70px; }
-  .row { display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:0 14px; }
-  .chk { display:flex; gap:8px; align-items:center; font-size:14px; margin:5px 0; } .chk input { width:auto; }
+  .page-head { display:flex; align-items:center; gap:12px 16px; margin-bottom:16px; flex-wrap:wrap; }
+  .page-head h1 { margin:0; font-family:var(--head); font-size:24px; font-weight:900; display:flex; gap:10px; align-items:center; }
+  .page-head h1 img { width:30px; height:30px; border-radius:8px; }
+  label { display:block; font-size:13px; color:var(--muted); margin:12px 0 4px; }
+  input, select, textarea { width:100%; padding:9px 12px; border:1px solid var(--line); border-radius:10px; font-size:14.5px; font-family:inherit; background:var(--card); color:var(--ink); }
+  .B input, .B select, .B textarea { background:#0F131B; }
+  input:focus, select:focus, textarea:focus { outline:2px solid var(--acc); outline-offset:-1px; }
   .hint { font-size:12px; color:var(--muted); }
-  .bar { position:sticky; bottom:0; background:var(--bg); padding:10px 0; display:flex; gap:10px; align-items:center; flex-wrap:wrap; border-top:1px solid var(--line); }
-  .save { background:var(--accent); color:#fff; border:0; border-radius:10px; padding:10px 26px; font-size:15px; cursor:pointer; }
-  .sub { background:var(--card); color:var(--ink); border:1px solid var(--line); border-radius:10px; padding:9px 16px; font-size:14px; cursor:pointer; }
-  .status { font-size:13px; } .ok { color:var(--accent); } .ng { color:var(--warn); }
-  .steps { border:2px solid var(--accent); border-radius:10px; padding:10px 14px; margin-top:10px; font-size:14px; }
-  .steps ol { margin:6px 0 4px; padding-left:22px; } .steps li { margin:3px 0; } .steps a { color:var(--accent); font-weight:700; }
-  .explain { margin-top:10px; font-size:14px; } .explain summary { cursor:pointer; color:var(--accent); font-weight:700; } .explain ul { margin:6px 0; padding-left:20px; } .explain li { margin:4px 0; }
-  @media (max-width:800px) { .wrap { grid-template-columns:1fr; } aside { position:static; display:flex; flex-wrap:wrap; gap:4px; } }
+  .wrap { max-width:1180px; }
+  .jump { display:flex; flex-wrap:wrap; gap:6px; margin:0 0 16px; position:sticky; top:0; z-index:3; background:var(--bg); padding:8px 0; }
+  .jump a { padding:6px 12px; border-radius:99px; background:var(--card); border:1px solid var(--line); font-size:13px; color:var(--ink); }
+  .jump a:hover { border-color:var(--acc); color:var(--acc); }
+  .card { margin-bottom:16px; scroll-margin-top:64px; } .card h2 { font-size:16px; }
+  textarea { min-height:80px; }
+  .row { display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:0 16px; }
+  .chk { display:flex; gap:10px; align-items:center; font-size:14px; margin:7px 0; } .chk input { width:auto; accent-color:var(--acc); }
+  .savebar { position:sticky; bottom:0; background:var(--bg); padding:12px 0; display:flex; gap:10px; align-items:center; flex-wrap:wrap; border-top:1px solid var(--line); z-index:3; }
+  .save { background:var(--acc); color:var(--acc-ink); border:0; border-radius:10px; padding:11px 28px; font-size:15px; font-weight:700; cursor:pointer; }
+  .sub { background:var(--card); color:var(--ink); border:1px solid var(--line); border-radius:10px; padding:10px 16px; font-size:14px; cursor:pointer; }
+  .status { font-size:13px; } .status.ok { color:var(--ok); } .status.ng { color:var(--red); }
+  .steps { border:2px solid var(--acc); border-radius:12px; padding:12px 16px; margin-top:10px; font-size:14px; }
+  .steps ol { margin:6px 0 4px; padding-left:22px; list-style:decimal; } .steps li { margin:3px 0; } .steps a { color:var(--acc); font-weight:700; }
+  .explain { margin-top:10px; font-size:14px; } .explain summary { cursor:pointer; color:var(--acc); font-weight:700; } .explain ul { margin:6px 0; padding-left:20px; list-style:disc; } .explain li { margin:4px 0; }
 </style>
 </head>
-<body>
+<body data-page="settings" class="A">
 <div class="wrap">
-  <h1>⚙️ 設定 <a href="dashboard.html" style="font-size:14px;font-weight:400">← 今日の会社にもどる</a></h1>
-  <aside>
-    <a href="#s-basic">会社の基本</a><a href="#s-goal">経営の目標</a><a href="#s-money">お金</a><a href="#s-mail">仕事用のメール</a><a href="#s-ai">AIへの任せ方</a>
-    <a href="#s-notice">お知らせ</a><a href="#s-show">画面に出すもの</a><a href="#s-depts">部署</a><a href="#s-peers">同業として見る会社</a>
-  </aside>
-  <main>
+  <div class="page-head"><h1><img src="img/settings.png" alt="">設定</h1><span class="hint">会社の基本・目標・お金・メール・AIへの任せ方・画面のデザインを決めます</span></div>
+  <nav class="jump"><a href="#s-basic">会社の基本</a><a href="#s-goal">経営の目標</a><a href="#s-money">お金</a><a href="#s-mail">仕事用のメール</a><a href="#s-ai">AIへの任せ方</a><a href="#s-notice">お知らせ</a><a href="#s-show">画面に出すもの</a><a href="#s-depts">部署</a><a href="#s-peers">同業として見る会社</a></nav>
+  <div>
     <form id="f">
       <div class="card" id="s-basic"><h2>会社の基本</h2>
         <div class="row"><div><label>会社名</label><input name="company"></div><div><label>業種</label><input name="industry" placeholder="例：工務店・リフォーム"></div><div><label>地域</label><input name="area" placeholder="例：静岡県富士市"></div></div>
@@ -92,6 +91,7 @@
 
       <div class="card" id="s-ai"><h2>AIへの任せ方</h2>
         <div class="hint">チェックしたものは「聞かずにやってよい」。外したものは、必ず社長に聞いてから行います。</div>
+        <label>AIが読んでよい、会社フォルダの外のフォルダ（1行に1つ。見張り番が起こしたAIもここを読めます）</label><textarea name="ai_read_dirs" placeholder="例：C:\Users\名前\Documents\資料&#10;（空なら会社フォルダの中だけ）"></textarea>
         <div class="chk"><input type="checkbox" name="ok_intake">受付箱の書類の仕分けと台帳への記入</div>
         <div class="chk"><input type="checkbox" name="ok_drafts">請求書・見積書・返信メールの下書き（送るのは人）</div>
         <div class="chk"><input type="checkbox" name="ok_check">毎朝の期限と入金の確認</div>
@@ -116,6 +116,8 @@
         <div class="chk"><input type="checkbox" name="show_depts">部署の動き</div>
         <div class="chk"><input type="checkbox" name="show_peers">同業の動き</div>
         <div class="chk"><input type="checkbox" name="show_hr">シフトと勤務（人事を使う会社だけ）</div>
+        <label>画面のデザイン</label><select name="design"><option value="A">A 静かな経営室（白・左にメニュー）</option><option value="B">B コマンドセンター（黒・アイコンのメニュー）</option><option value="C">C AI社員チーム（明るい・部署のキャラが主役）</option></select>
+        <div class="hint">会社の画面の左下（または右上）の A・B・C でも切り替えられます</div>
         <label>「判断が必要なこと」を何件まで表に出すか</label><select name="decision_rows"><option>5</option><option>3</option><option>7</option></select>
       </div>
 
@@ -125,6 +127,8 @@
           <div class="chk"><input type="checkbox" name="d_jimu">事務（受付・書類）</div><div class="chk"><input type="checkbox" name="d_keiri">経理（入金・経費・締め）</div>
           <div class="chk"><input type="checkbox" name="d_eigyo">営業（見積・提案・返信）</div><div class="chk"><input type="checkbox" name="d_hasshin">発信（SNS・ホームページ）</div>
           <div class="chk"><input type="checkbox" name="d_kikaku">企画（分析・同業調査・PDCA）</div><div class="chk"><input type="checkbox" name="d_jinji">人事（シフト・勤務）</div></div>
+        <label>会社の部署を自分の名前で使う（1行に1つ：部署の名前,役目,一緒に動く部署）</label><textarea name="depts_custom" placeholder="AI社長室,優先順位と出来の確認,経営企画室・秘書室&#10;販売宣伝部,売り場とお客さま,SNS室・商品開発部&#10;SNS室,X・Instagram・YouTube,販売宣伝部・品質管理室"></textarea>
+        <div class="hint">書くと、上のチェックの代わりにこの部署が画面に出ます（空なら上のチェックの部署）。AIは「部署の記録」にこの名前で書きます。3つ目の「一緒に動く部署」は「・」で区切ります。会社の画面で部署を押すと、その部署の動きと連携が見られます</div>
         <label>担当の人（1行に1つ：部署,名前）</label><textarea name="dept_people" placeholder="経理,佐藤&#10;営業,田中"></textarea>
       </div>
 
@@ -133,13 +137,13 @@
         <textarea name="peers" placeholder="A工務店,https://example.com&#10;B建設,https://example.jp"></textarea>
       </div>
 
-      <div class="bar">
+      <div class="savebar">
         <button class="save" type="submit">保存する</button>
         <button class="sub" type="button" id="connect" hidden>📁 会社フォルダとつなぐ</button>
         <span class="status" id="status"></span>
       </div>
     </form>
-  </main>
+  </div>
 </div>
 
 <!-- 今の設定：AIが 設定.json の中身をここにも写します（フォルダとつながっていないときの表示用） -->
@@ -177,7 +181,7 @@
     if (h && (await h.requestPermission({ mode: 'readwrite' })) === 'granted') return h;
     h = await window.showDirectoryPicker({ mode: 'readwrite' }); await idb('readwrite', function (s) { return s.put(h, 'dir'); }); return h;
   };
-  var load = async function (dir) { try { var fh = await dir.getFileHandle('設定.json'); fill(JSON.parse(await (await fh.getFile()).text())); say('会社フォルダの 設定.json を読みました', true); } catch (e) {} };
+  var load = async function (dir) { try { var fh = await dir.getFileHandle('設定.json'); var js = JSON.parse(await (await fh.getFile()).text()); fill(js); if (js.design && window.aihonshaDesign) window.aihonshaDesign(js.design); say('会社フォルダの 設定.json を読みました', true); } catch (e) {} };
   if (window.showDirectoryPicker) {
     getDir(false).then(function (d) { if (d) load(d); else document.getElementById('connect').hidden = false; });
     document.getElementById('connect').onclick = function () { getDir(true).then(function (d) { if (d) { document.getElementById('connect').hidden = true; load(d); } }); };
@@ -229,5 +233,6 @@
   });
 })();
 </script>
+<script src="theme.js"></script>
 </body>
 </html>

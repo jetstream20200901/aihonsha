@@ -41,8 +41,9 @@ my $lock = "$target/仕組み/動いています.lock";
 if (-f $lock && time - (stat $lock)[9] < 7200) { say_ 'いま AI が作業中です。終わってからもう一度アップデートしてください。'; done_(); exit 1 }
 wr($lock, '');
 
-my @sys = ('画面/dashboard.html', '画面/settings.html', '画面/contacts.html', '仕組み/見張り番.ps1', '仕組み/見張り番.sh', '仕組み/見張り番を始める.ps1', '仕組み/AI本社の基本ルール.md', '仕組み/バージョン.txt');
+my @sys = ('画面/dashboard.html', '画面/settings.html', '画面/contacts.html', '画面/theme.css', '画面/theme.js', '仕組み/見張り番.ps1', '仕組み/見張り番.sh', '仕組み/見張り番を始める.ps1', '仕組み/AI本社の基本ルール.md', '仕組み/バージョン.txt');
 push @sys, map { ".claude/skills/$_" } files_under("$source/.claude/skills");
+push @sys, map { "画面/img/$_" } files_under("$source/画面/img");
 my %sysset = map { lc($_) => 1 } (@sys, '設定.json', 'CLAUDE.md', '仕組み/アップデートの記録.txt', '仕組み/動いています.lock');
 sub snapshot { my %h; for my $r (files_under($target)) { next if $sysset{lc $r}; my @s = stat "$target/$r"; $h{$r} = "$s[7]|$s[9]" } return %h }
 
